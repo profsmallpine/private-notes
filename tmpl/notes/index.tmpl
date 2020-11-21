@@ -1,0 +1,83 @@
+{{ define "pageContent" }}
+<div class="max-w-none mx-auto">
+  <div class="bg-white overflow-hidden sm:rounded-lg sm:shadow">
+    <div class="bg-white px-4 py-5 border-b border-gray-200 sm:px-6">
+      <div class="-ml-4 -mt-4 flex justify-between items-center flex-wrap sm:flex-no-wrap">
+        <div class="ml-4 mt-4">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Notes
+          </h3>
+          <p class="mt-1 text-sm leading-5 text-gray-500">
+            {{ if eq (len .notes) 0 }}
+            It looks like you have not created any notes yet. Let's start here.
+            {{ else }}
+            Here is an archive of all notes created for this group.
+            {{ end }}
+          </p>
+
+        </div>
+        <div class="ml-4 mt-4 flex-shrink-0">
+          <span class="inline-flex rounded-md shadow-sm">
+            <button type="button" class="relative inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:shadow-outline-indigo focus:border-indigo-700 active:bg-indigo-700" onclick="window.location.href='/groups/{{ .groupID }}/notes/new'">
+              Create new note
+            </button>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    {{ if gt (len .notes) 0 }}
+    <ul>
+      {{ $groupID := .groupID }}
+      {{ range $idx, $note := .notes }}
+      <li {{ if gt $idx 0  }}class="border-t border-gray-200"{{ end}}>
+        <a href="/groups/{{ $groupID }}/notes/{{ .ID }}" class="block hover:bg-gray-50 focus:outline-none focus:bg-gray-50 transition duration-150 ease-in-out">
+          <div class="px-4 py-4 flex items-center sm:px-6">
+            <div class="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <div class="text-sm leading-5 font-medium text-indigo-600 truncate">
+                  Title will go  here
+                  <span class="ml-1 font-normal text-gray-500">
+                  by {{ $note.Author.FullName }}
+                  </span>
+                </div>
+                <div class="mt-2 flex">
+                  <div class="flex items-center text-sm leading-5 text-gray-500">
+                    <!-- Heroicon name: calendar -->
+                    <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                    </svg>
+                    <span>
+                      Created on
+                      <time datetime="2020-01-07">{{ $note.CreatedAtHumanized }}</time>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {{/* <div class="mt-4 flex-shrink-0 sm:mt-0">
+                <div class="flex overflow-hidden">
+                  <img class="inline-block h-6 w-6 rounded-full text-white shadow-solid" src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="">
+                  <img class="-ml-1 inline-block h-6 w-6 rounded-full text-white shadow-solid" src="https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="">
+                  <img class="-ml-1 inline-block h-6 w-6 rounded-full text-white shadow-solid" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80" alt="">
+                  <img class="-ml-1 inline-block h-6 w-6 rounded-full text-white shadow-solid" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="">
+                </div>
+              </div> */}}
+            </div>
+            <div class="ml-5 flex-shrink-0">
+              <!-- Heroicon name: chevron-right -->
+              <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
+        </a>
+      </li>
+      {{ end }}
+    </ul>
+    {{ end }}
+  </div>
+</div>
+{{ end }}
+
+{{ define "scripts" }}
+{{ end }}

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e # Exit on failure
+
+# Setup private_notes_dev_db database
+passwd=$( date | md5 )
+psql postgres -c "create role private_notes_dev_db_user superuser createdb login;"
+createdb -O "private_notes_dev_db_user" private_notes_dev_db
+psql postgres -c "grant all on database private_notes_dev_db to $( whoami );"
