@@ -1,0 +1,59 @@
+{{ define "pageContent" }}
+<div>
+  <div class="md:grid md:grid-cols-3 md:gap-6">
+    <div class="md:col-span-1">
+      <div class="px-4 sm:px-0">
+        <h3 class="text-lg font-medium leading-6 text-gray-900">Create a new group</h3>
+        <p class="mt-1 text-sm leading-5 text-gray-600">
+          Notes created will be shared with each member of the group.
+        </p>
+      </div>
+    </div>
+    <div class="mt-5 md:mt-0 md:col-span-2">
+      <form action="/groups/create" method="POST">
+        <div class="shadow sm:rounded-md sm:overflow-hidden">
+          <div class="px-4 py-5 bg-white sm:p-6">
+            <div class="col-span-6">
+              <label for="name" class="block text-sm font-medium leading-5 text-gray-700">Name</label>
+              <input id="name" name="name" class="mt-1 form-input block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5" required>
+            </div>
+
+            <div class="mt-6">
+              <label for="description" class="block text-sm leading-5 font-medium text-gray-700">
+                Description
+              </label>
+              <div class="rounded-md shadow-sm">
+                <textarea id="description" name="description" rows="3" class="form-textarea mt-1 block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5" placeholder="Let's discuss things" required></textarea>
+              </div>
+              <p class="mt-2 text-sm text-gray-500">
+                Set your intention for the group.
+              </p>
+            </div>
+
+            <div class="mt-6">
+              <label class="block text-sm leading-5 font-medium text-gray-700">
+                Users
+              </label>
+              <select id="userIDs" name="userIDs" class="form-select mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5" multiple>
+                {{ range .Data.users }}
+                <option value="{{ .ID }}">{{ .FullName }}</option>
+                {{ end }}
+              </select>
+            </div>
+          </div>
+          <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+            <span class="inline-flex rounded-md shadow-sm">
+              <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition duration-150 ease-in-out">
+                Save
+              </button>
+            </span>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{{ end }}
+
+{{ define "scripts" }}
+{{ end }}

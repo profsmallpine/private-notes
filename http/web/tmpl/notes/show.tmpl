@@ -1,0 +1,71 @@
+{{ define "pageContent" }}
+<div class="relative py-16 overflow-hidden">
+  <div class="relative px-4 sm:px-6 lg:px-8">
+    <div class="text-lg max-w-prose mx-auto mb-6">
+      <p class="text-base text-center leading-6 text-indigo-600 font-semibold tracking-wide uppercase">Written By</p>
+      <h1 class="mt-2 mb-8 text-3xl text-center leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl sm:leading-10">
+        {{ .Data.note.Author.FullName }}
+      </h1>
+      <div class="trix-content">
+        {{ .Data.note.Content }}
+      </div>
+
+      <div class="mt-16">
+        {{ range .Data.note.Comments }}
+        <div class="flex flex-col mb-4 rounded-lg border overflow-hidden">
+          <div class="flex-1 p-4 flex flex-col justify-between">
+            <div class="flex-1">
+              <p class="text-sm leading-6 text-gray-500">
+                {{ .Content }}
+              </p>
+            </div>
+            <div class="mt-2 flex items-center">
+              <div class="flex-shrink-0">
+                {{ if ne .Author.PictureURL "" }}
+                <img class="h-10 w-10 rounded-full" src="{{ .Author.PictureURL }}" alt="">
+                {{ else }}
+                <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-500">
+                  <span class="text-sm font-medium leading-none text-white">{{ .Author.Initials }}</span>
+                </span>
+                {{ end }}
+              </div>
+              <div class="ml-3">
+                <p class="text-sm leading-5 font-medium text-gray-900">
+                  {{ .Author.FullName }}
+                </p>
+                <div class="flex text-sm leading-5 text-gray-500">
+                  <time datetime="{{ .CreatedAt }}">
+                    {{ .CreatedAtHumanized }}
+                  </time>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {{ end }}
+
+        <form action="/groups/{{ .Data.note.GroupID }}/notes/{{ .Data.note.ID }}/comments/create" method="POST">
+          <div class="space-y-6">
+            <div class="space-y-1">
+              <div class="rounded-md shadow-sm">
+                <textarea id="content" name="content" rows="3" class="form-textarea block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5" placeholder="Add a comment" required></textarea>
+              </div>
+            </div>
+
+            <div class="flex justify-end">
+              <span class="ml-3 inline-flex rounded-md shadow-sm">
+                <button type="submit" class="relative inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:shadow-outline-indigo focus:border-indigo-700 active:bg-indigo-700">
+                  Submit
+                </button>
+              </span>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{{ end }}
+
+{{ define "scripts" }}
+{{ end }}

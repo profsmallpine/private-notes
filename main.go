@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/profsmallpine/private-notes/pkg/app"
+	"github.com/profsmallpine/private-notes/app"
 )
 
 func main() {

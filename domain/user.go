@@ -3,7 +3,7 @@ package domain
 import (
 	"strings"
 
-	"github.com/profsmallpine/private-notes/pkg/http/routes"
+	"github.com/profsmallpine/private-notes/http/routes"
 	"gorm.io/gorm"
 )
 
@@ -30,6 +30,10 @@ func (u *User) CanAccessGroup(groupID uint) bool {
 	}
 
 	return false
+}
+
+func (*User) HasAccess() bool {
+	return true
 }
 
 func (*User) HomePath() string {
