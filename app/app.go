@@ -30,6 +30,9 @@ func New(logger *log.Logger) (*App, error) {
 	baseURL := envVarOrString("BASE_URL", "http://localhost:8080")
 	env := os.Getenv("ENVIRONMENT")
 	port := envVarOrString("PORT", ":8080")
+	if port[0] != ':' {
+		port = ":" + port
+	}
 
 	// Connect/migrate database.
 	config := &postgres.CxnConfig{IsTestDB: false, URL: os.Getenv("DATABASE_URL")}
