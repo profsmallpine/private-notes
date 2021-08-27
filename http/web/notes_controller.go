@@ -3,6 +3,7 @@ package web
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/profsmallpine/private-notes/domain"
@@ -27,7 +28,7 @@ func (c *Controller) createNote(w http.ResponseWriter, r *http.Request) {
 	groupID := mux.Vars(r)[routes.MuxIDParam]
 	rt := fmt.Sprintf("/groups/%s/notes", groupID)
 
-	if err := c.DB.First(group, groupID).Error; err != nil {
+	if err := c.DB.Preload("Users").First(group, groupID).Error; err != nil {
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
@@ -57,7 +58,21 @@ func (c *Controller) createNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Send email to other members of group
 	redirect := fmt.Sprintf("/groups/%d/notes/%d", group.ID, note.ID)
+	members := []string{}
+	for _, u := range group.Users {
+		if u.ID != user.ID {
+			members = append(members, u.Email)
+		}
+	}
+	if len(members) > 0 {
+		// TODO: log failure
+		msg := fmt.Sprintf("%s created a new post. Check it out here: %s", user.FirstName, os.Getenv("BASE_URL")+redirect)
+		subject := fmt.Sprintf("Get Excited! Newness Submitted to %s", group.Name)
+		c.Services.Email.Send(msg, subject, members)
+	}
+
 	c.Redirect(w, r, resp.Success("Your note has been successfully created!"), resp.Url(redirect))
 }
 
@@ -110,7 +125,7 @@ func (c *Controller) getNotes(w http.ResponseWriter, r *http.Request) {
 	}
 
 	notes := []*domain.Note{}
-	if err := c.DB.Where("group_id = ?", group.ID).Preload("Author").Find(&notes).Error; err != nil {
+	if err := c.DB.Where("group_id = ?", group.ID).Preload("Author").Order("created_at DESC").Find(&notes).Error; err != nil {
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}

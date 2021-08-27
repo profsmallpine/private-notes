@@ -22,7 +22,7 @@ type Service struct {
 func NewService(callbackURL string) domain.AuthProvider {
 	return Service{
 		Config: &oauth2.Config{
-			RedirectURL:  os.Getenv("BASE_URL") + callbackURL,
+			RedirectURL:  callbackURL,
 			ClientID:     os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
 			ClientSecret: os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
 			Scopes:       []string{goauth2.UserinfoEmailScope, goauth2.UserinfoProfileScope},

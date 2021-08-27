@@ -1,6 +1,10 @@
 package domain
 
-import "gorm.io/gorm"
+import (
+	"html/template"
+
+	"gorm.io/gorm"
+)
 
 type Note struct {
 	gorm.Model `json:"-"`
@@ -18,6 +22,10 @@ type Note struct {
 
 func (n *Note) CreatedAtHumanized() string {
 	return n.CreatedAt.Format("Jan 2, 2006")
+}
+
+func (n *Note) HTMLContent() template.HTML {
+	return template.HTML(n.Content)
 }
 
 func (*Note) TableName() string {

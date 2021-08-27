@@ -13,6 +13,7 @@ import (
 	"github.com/profsmallpine/private-notes/migrations"
 	"github.com/profsmallpine/private-notes/procedures"
 	"github.com/profsmallpine/private-notes/services/auth"
+	"github.com/profsmallpine/private-notes/services/email"
 	"github.com/xy-planning-network/trails/http/router"
 	"github.com/xy-planning-network/trails/http/session"
 	"github.com/xy-planning-network/trails/postgres"
@@ -26,30 +27,39 @@ func New(logger *log.Logger) (*App, error) {
 	_ = godotenv.Load()
 
 	allowedEmails := strings.Split(os.Getenv("ALLOWED_EMAILS"), ",")
-
-	baseURL := envVarOrString("PORT", "http://localhost:8080")
+	baseURL := envVarOrString("BASE_URL", "http://localhost:8080")
+	env := os.Getenv("ENVIRONMENT")
 	port := envVarOrString("PORT", ":8080")
 
 	// Connect/migrate database.
-	db, err := postgres.Connect(&postgres.CxnConfig{
-		Host:     envVarOrString("PG_HOST", "localhost"),
-		IsTestDB: false,
-		Name:     envVarOrString("PG_NAME", "private_notes_dev_db"),
-		Password: envVarOrString("PG_PASSWORD", ""),
-		Port:     envVarOrString("PG_PORT", "5432"),
-		User:     envVarOrString("PG_USER", "private_notes_dev_db_user"),
-	}, migrations.List)
+	config := &postgres.CxnConfig{IsTestDB: false, URL: os.Getenv("DATABASE_URL")}
+	if config.URL == "" {
+		config.Host = envVarOrString("PG_HOST", "localhost")
+		config.Name = envVarOrString("PG_NAME", "private_notes_dev_db")
+		config.Password = envVarOrString("PG_PASSWORD", "")
+		config.Port = envVarOrString("PG_PORT", "5432")
+		config.User = envVarOrString("PG_USER", "private_notes_dev_db_user")
+	}
+	db, err := postgres.Connect(config, migrations.List)
 	if err != nil {
 		return nil, err
 	}
 
-	sss, err := session.NewStoreService("development", os.Getenv("SESSION_AUTH_KEY"), os.Getenv("SESSION_ENCRYPTION_KEY"))
+	sss, err := session.NewStoreService(env, os.Getenv("SESSION_AUTH_KEY"), os.Getenv("SESSION_ENCRYPTION_KEY"))
 	if err != nil {
 		return nil, err
 	}
+
+	es := email.NewService(
+		os.Getenv("EMAIL_FROM"),
+		os.Getenv("EMAIL_HOST"),
+		os.Getenv("EMAIL_PASSWORD"),
+		os.Getenv("EMAIL_PORT"),
+	)
 
 	services := domain.Services{
 		Auth:         auth.NewService(baseURL),
+		Email:        es,
 		SessionStore: sss,
 	}
 
@@ -57,7 +67,7 @@ func New(logger *log.Logger) (*App, error) {
 
 	controller := web.Controller{DB: db, Procedures: procedures, Services: services}
 
-	r := controller.Router()
+	r := controller.Router(env)
 
 	server := newServer(port, r)
 

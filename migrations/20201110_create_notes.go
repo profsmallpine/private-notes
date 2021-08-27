@@ -13,7 +13,7 @@ func (Note) TableName() string {
 type Note struct {
 	gorm.Model
 	Content        string
-	EncryptionType string
+	EncryptionType string `gorm:"default:'none'"`
 	GroupID        uint
 	Group          Group
 	Title          string

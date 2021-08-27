@@ -3,6 +3,7 @@ package web
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/profsmallpine/private-notes/domain"
@@ -32,6 +33,12 @@ func (c *Controller) createComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	group := &domain.Group{}
+	if err := c.DB.Preload("Users").First(group, groupID).Error; err != nil {
+		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
+		return
+	}
+
 	if !user.CanAccessGroup(note.GroupID) {
 		err := domain.ErrUnauthorized
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
@@ -54,6 +61,20 @@ func (c *Controller) createComment(w http.ResponseWriter, r *http.Request) {
 	if err := c.DB.Create(comment).Error; err != nil {
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
+	}
+
+	// Send email to other members of group
+	members := []string{}
+	for _, u := range group.Users {
+		if u.ID != user.ID {
+			members = append(members, u.Email)
+		}
+	}
+	if len(members) > 0 {
+		// TODO: log failure
+		msg := fmt.Sprintf("%s commented on a note. Check it out here: %s", user.FirstName, os.Getenv("BASE_URL")+rt)
+		subject := "Time to Reflect! Comment Made on Note"
+		c.Services.Email.Send(msg, subject, members)
 	}
 
 	c.Redirect(w, r, resp.Success("Your comment has been successfully created!"), resp.Url(rt))

@@ -13,15 +13,15 @@ import (
 	"github.com/xy-planning-network/trails/logger"
 )
 
-func (c *Controller) Router() router.Router {
+func (c *Controller) Router(env string) router.Router {
 	c.Keyring = ctx.NewKeyRing(sessionCtxKey, currentUserCtxKey)
 
-	r := router.NewRouter("DEVELOPMENT")
+	r := router.NewRouter(env)
 
 	u, _ := url.ParseRequestURI("http://localhost:8080")
 	p := template.NewParser(
 		files,
-		template.WithFn(template.Env("development")),
+		template.WithFn(template.Env(env)),
 		template.WithFn(template.RootUrl(u)),
 		// template.WithFn(template.Nonce()),
 		// template.WithFn("packTag", template.TagPacker(h.Env.String(), os.DirFS("."))),
@@ -43,7 +43,7 @@ func (c *Controller) Router() router.Router {
 	)
 
 	r.OnEveryRequest(
-		middleware.ForceHTTPS("development"),
+		middleware.ForceHTTPS(env),
 		middleware.InjectIPAddress(),
 		middleware.LogRequest(log),
 		middleware.InjectSession(c.SessionStore, c.Keyring.SessionKey()),
