@@ -10,8 +10,8 @@ conversations using E2E encryption with keys stored by the consuming clients.
 - [x] Implement better redirect handling with flash messages
 - [x] Add notifications for creating a note + creating a comment (plaintext email using basic auth)
 - [x] Fix bug with trix not rendering content
-- [ ] Setup Procfile + run on heroku
-- [ ] Setup DNS on domain + add users to database for login
+- [x] Setup Procfile + run on heroku
+- [x] Setup DNS on domain + add users to database for login
 - [ ] Update to latest version of tailwindcss
 - [ ] Add environment + embed in necessary structs
 - [ ] Fix flash once trails adds update
@@ -24,3 +24,4 @@ conversations using E2E encryption with keys stored by the consuming clients.
 - [ ] Add testing
 - [ ] Add sentry notifications for bugs
 - [ ] Add better sigterm handling
+- [ ] Add logging and update email failure (create note + create comment)
