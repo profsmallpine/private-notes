@@ -15,7 +15,7 @@
         Title
       </label>
       <div class="mt-1 rounded-md shadow-sm">
-        <input name="title" type="text" class="form-input block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5" required>
+        <input name="title" type="text" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" required>
       </div>
     </div>
 
@@ -25,7 +25,7 @@
         </label> */}}
         <div class="mt-1 rounded-md shadow-sm">
           <input id="content" type="hidden" name="content">
-          <trix-editor input="content" class="form-textarea h-64 trix-content"></trix-editor>
+          <trix-editor input="content" type="text" class="shadow-sm block focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md h-64 trix-content"></trix-editor>
         </div>
       </div>
     </div>

@@ -9,14 +9,19 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="shortcut icon" href="/assets/favicon.ico">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tailwindcss/ui@0.6.2/dist/tailwind-ui.min.css">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
+    <link rel="stylesheet" type="text/css" href="https://www.unpkg.com/tailwindcss@2.2.9/dist/base.min.css">
+    <link rel="stylesheet" type="text/css" href="https://www.unpkg.com/tailwindcss@2.2.9/dist/components.min.css">
+    <link rel="stylesheet" type="text/css" href="https://www.unpkg.com/tailwindcss@2.2.9/dist/utilities.min.css">
+    <style>html { font-family: 'Inter var', sans-serif; }</style>
   </head>
 
   <body class="bg-gray-50">
     {{ template "pageContent" . }}
 
     <script type="text/javascript">
-      window.Flashes = [{{ range .Flashes }}{message: {{ . }}},{{ end }}];
+      window.Flashes = {{ .Flashes }};
     </script>
 
     {{ template "scripts" . }}

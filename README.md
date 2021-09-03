@@ -12,12 +12,12 @@ conversations using E2E encryption with keys stored by the consuming clients.
 - [x] Fix bug with trix not rendering content
 - [x] Setup Procfile + run on heroku
 - [x] Setup DNS on domain + add users to database for login
-- [ ] Update to latest version of tailwindcss
+- [x] Update to latest version of tailwindcss
+- [ ] Update header to context based breadcrumb
+- [ ] Implement application encryption for note content (E2E)
 - [ ] Add environment + embed in necessary structs
 - [ ] Fix flash once trails adds update
 - [ ] Render flash with alpinejs
-- [ ] Update header to context based breadcrumb
-- [ ] Implement application encryption for note content (E2E)
 - [ ] Add draft feature for notes
 - [ ] Add edit ability to group
 - [ ] Add edit ability to note
@@ -25,3 +25,4 @@ conversations using E2E encryption with keys stored by the consuming clients.
 - [ ] Add sentry notifications for bugs
 - [ ] Add better sigterm handling
 - [ ] Add logging and update email failure (create note + create comment)
+- [ ] Add guide for running the app for dev

@@ -56,7 +56,7 @@ func (c *Controller) getGroups(w http.ResponseWriter, r *http.Request) {
 	}
 
 	groups := []*domain.Group{}
-	if err := c.DB.Model(user).Association("Groups").Find(&groups); err != nil {
+	if err := c.DB.Model(user).Preload("Users").Association("Groups").Find(&groups); err != nil {
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.GetLogoffURL))
 		return
 	}
