@@ -32,6 +32,14 @@ func (u *User) CanAccessGroup(groupID uint) bool {
 	return false
 }
 
+func (u *User) GetEmail() string {
+	return u.Email
+}
+
+func (u *User) GetID() uint {
+	return u.ID
+}
+
 func (*User) HasAccess() bool {
 	return true
 }

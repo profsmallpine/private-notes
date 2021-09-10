@@ -16,6 +16,7 @@ import (
 	"github.com/profsmallpine/private-notes/services/email"
 	"github.com/xy-planning-network/trails/http/router"
 	"github.com/xy-planning-network/trails/http/session"
+	"github.com/xy-planning-network/trails/logger"
 	"github.com/xy-planning-network/trails/postgres"
 )
 
@@ -23,7 +24,7 @@ type App struct {
 	*http.Server
 }
 
-func New(logger *log.Logger) (*App, error) {
+func New(logging *log.Logger) (*App, error) {
 	_ = godotenv.Load()
 
 	allowedEmails := strings.Split(os.Getenv("ALLOWED_EMAILS"), ",")
@@ -60,9 +61,16 @@ func New(logger *log.Logger) (*App, error) {
 		os.Getenv("EMAIL_PORT"),
 	)
 
+	ls := logger.NewLogger(
+		logger.WithEnv(env),
+		logger.WithLogger(logging),
+		logger.WithLevel(logger.LogLevelInfo),
+	)
+
 	services := domain.Services{
 		Auth:         auth.NewService(baseURL),
 		Email:        es,
+		Logger:       ls,
 		SessionStore: sss,
 	}
 
@@ -70,7 +78,7 @@ func New(logger *log.Logger) (*App, error) {
 
 	controller := web.Controller{DB: db, Procedures: procedures, Services: services}
 
-	r := controller.Router(env)
+	r := controller.Router(env, baseURL)
 
 	server := newServer(port, r)
 

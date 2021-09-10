@@ -10,7 +10,6 @@ import (
 	"github.com/xy-planning-network/trails/http/resp"
 	"github.com/xy-planning-network/trails/http/router"
 	"github.com/xy-planning-network/trails/http/template"
-	"github.com/xy-planning-network/trails/logger"
 )
 
 func (c *Controller) Router(env, baseURL string) router.Router {
@@ -30,10 +29,9 @@ func (c *Controller) Router(env, baseURL string) router.Router {
 		// template.WithFn("isProduction", func() bool { return h.Env == domain.Production }),
 	)
 
-	log := logger.NewLogger()
 	c.Responder = resp.NewResponder(
 		resp.WithRootUrl(baseURL),
-		resp.WithLogger(log),
+		resp.WithLogger(c.Logger),
 		resp.WithParser(p),
 		resp.WithAuthTemplate(authedTmpl),
 		resp.WithUnauthTemplate(unauthedTmpl),
@@ -45,7 +43,7 @@ func (c *Controller) Router(env, baseURL string) router.Router {
 	r.OnEveryRequest(
 		middleware.ForceHTTPS(env),
 		middleware.InjectIPAddress(),
-		middleware.LogRequest(log),
+		middleware.LogRequest(c.Logger),
 		middleware.InjectSession(c.SessionStore, c.Keyring.SessionKey()),
 		middleware.CurrentUser(c.Responder, c, c.Keyring.SessionKey(), c.Keyring.CurrentUserKey()),
 	)

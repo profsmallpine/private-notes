@@ -9,6 +9,7 @@ import (
 	"github.com/profsmallpine/private-notes/domain"
 	"github.com/profsmallpine/private-notes/http/routes"
 	"github.com/xy-planning-network/trails/http/resp"
+	"github.com/xy-planning-network/trails/logger"
 )
 
 type createCommentReq struct {
@@ -29,18 +30,21 @@ func (c *Controller) createComment(w http.ResponseWriter, r *http.Request) {
 
 	note := &domain.Note{}
 	if err := c.DB.First(note, noteID).Error; err != nil {
+		c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
 
 	group := &domain.Group{}
 	if err := c.DB.Preload("Users").First(group, groupID).Error; err != nil {
+		c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
 
 	if !user.CanAccessGroup(note.GroupID) {
 		err := domain.ErrUnauthorized
+		c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
@@ -48,6 +52,7 @@ func (c *Controller) createComment(w http.ResponseWriter, r *http.Request) {
 	// Parse + decode form into go
 	var req createCommentReq
 	if err := c.parseForm(r, &req); err != nil {
+		c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
@@ -59,6 +64,7 @@ func (c *Controller) createComment(w http.ResponseWriter, r *http.Request) {
 		UserID:  user.ID,
 	}
 	if err := c.DB.Create(comment).Error; err != nil {
+		c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
@@ -74,7 +80,9 @@ func (c *Controller) createComment(w http.ResponseWriter, r *http.Request) {
 		// TODO: log failure
 		msg := fmt.Sprintf("%s commented on a note. Check it out here: %s", user.FirstName, os.Getenv("BASE_URL")+rt)
 		subject := "Time to Reflect! Comment Made on Note"
-		c.Services.Email.Send(msg, subject, members)
+		if err := c.Services.Email.Send(msg, subject, members); err != nil {
+			c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
+		}
 	}
 
 	c.Redirect(w, r, resp.Success("Your comment has been successfully created!"), resp.Url(rt))

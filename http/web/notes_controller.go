@@ -9,6 +9,7 @@ import (
 	"github.com/profsmallpine/private-notes/domain"
 	"github.com/profsmallpine/private-notes/http/routes"
 	"github.com/xy-planning-network/trails/http/resp"
+	"github.com/xy-planning-network/trails/logger"
 )
 
 type createNoteReq struct {
@@ -29,6 +30,7 @@ func (c *Controller) createNote(w http.ResponseWriter, r *http.Request) {
 	rt := fmt.Sprintf("/groups/%s/notes", groupID)
 
 	if err := c.DB.Preload("Users").First(group, groupID).Error; err != nil {
+		c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
@@ -42,6 +44,7 @@ func (c *Controller) createNote(w http.ResponseWriter, r *http.Request) {
 	// Parse + decode form into go
 	var req createNoteReq
 	if err := c.parseForm(r, &req); err != nil {
+		c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
@@ -54,6 +57,7 @@ func (c *Controller) createNote(w http.ResponseWriter, r *http.Request) {
 		UserID:  user.ID,
 	}
 	if err := c.DB.Create(note).Error; err != nil {
+		c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
@@ -67,10 +71,11 @@ func (c *Controller) createNote(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if len(members) > 0 {
-		// TODO: log failure
 		msg := fmt.Sprintf("%s created a new post. Check it out here: %s", user.FirstName, os.Getenv("BASE_URL")+redirect)
 		subject := fmt.Sprintf("Get Excited! Newness Submitted to %s", group.Name)
-		c.Services.Email.Send(msg, subject, members)
+		if err := c.Services.Email.Send(msg, subject, members); err != nil {
+			c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
+		}
 	}
 
 	c.Redirect(w, r, resp.Success("Your note has been successfully created!"), resp.Url(redirect))
@@ -89,6 +94,7 @@ func (c *Controller) getNote(w http.ResponseWriter, r *http.Request) {
 
 	note := &domain.Note{}
 	if err := c.DB.Preload("Comments.Author").Preload("Author").First(note, noteID).Error; err != nil {
+		c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
@@ -114,6 +120,7 @@ func (c *Controller) getNotes(w http.ResponseWriter, r *http.Request) {
 
 	group := &domain.Group{}
 	if err := c.DB.First(group, mux.Vars(r)[routes.MuxIDParam]).Error; err != nil {
+		c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
@@ -126,6 +133,7 @@ func (c *Controller) getNotes(w http.ResponseWriter, r *http.Request) {
 
 	notes := []*domain.Note{}
 	if err := c.DB.Where("group_id = ?", group.ID).Preload("Author").Order("created_at DESC").Find(&notes).Error; err != nil {
+		c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}

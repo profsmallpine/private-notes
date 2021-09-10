@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/profsmallpine/private-notes/domain"
+	"github.com/xy-planning-network/trails/logger"
 	"gorm.io/gorm"
 )
 
@@ -32,6 +33,7 @@ func (u *User) HandleCallback(data *domain.AuthData) (*domain.User, error) {
 		user.PictureURL = data.PictureURL
 
 		if err := database.Create(user).Error; err != nil {
+			services.Logger.Error(err.Error(), &logger.LogContext{Error: err})
 			return nil, err
 		}
 	}
