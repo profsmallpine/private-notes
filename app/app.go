@@ -49,7 +49,9 @@ func New(logging *log.Logger) (*App, error) {
 		return nil, err
 	}
 
-	sss, err := session.NewStoreService(env, os.Getenv("SESSION_AUTH_KEY"), os.Getenv("SESSION_ENCRYPTION_KEY"))
+	// func WithCookie() func(*Service) error {
+	fsOpt := session.WithRedis("localhost:6379", "")
+	sss, err := session.NewStoreService(env, os.Getenv("SESSION_AUTH_KEY"), os.Getenv("SESSION_ENCRYPTION_KEY"), fsOpt)
 	if err != nil {
 		return nil, err
 	}

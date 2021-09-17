@@ -7,7 +7,6 @@ import (
 	"github.com/profsmallpine/private-notes/domain"
 	"github.com/profsmallpine/private-notes/http/routes"
 	"github.com/xy-planning-network/trails/http/resp"
-	"github.com/xy-planning-network/trails/logger"
 )
 
 type createGroupReq struct {
@@ -20,7 +19,6 @@ func (c *Controller) createGroup(w http.ResponseWriter, r *http.Request) {
 	// Parse + decode form into go
 	var req createGroupReq
 	if err := c.parseForm(r, &req); err != nil {
-		c.Logger.Error(err.Error(), &logger.LogContext{Request: r, Error: err})
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.GetGroupsURL))
 		return
 	}
@@ -42,7 +40,6 @@ func (c *Controller) createGroup(w http.ResponseWriter, r *http.Request) {
 		Users:       users,
 	}
 	if err := c.DB.Create(group).Error; err != nil {
-		c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.GetGroupsURL))
 		return
 	}
@@ -60,7 +57,6 @@ func (c *Controller) getGroups(w http.ResponseWriter, r *http.Request) {
 
 	groups := []*domain.Group{}
 	if err := c.DB.Model(user).Preload("Users").Association("Groups").Find(&groups); err != nil {
-		c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.GetLogoffURL))
 		return
 	}
@@ -78,7 +74,6 @@ func (c *Controller) newGroup(w http.ResponseWriter, r *http.Request) {
 
 	users := []*domain.User{}
 	if err := c.DB.Where("id != ?", user.ID).Find(&users).Error; err != nil {
-		c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.GetGroupsURL))
 		return
 	}
