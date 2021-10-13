@@ -5,12 +5,13 @@ conversations using E2E encryption with keys stored by the consuming clients.
 
 ## Development instructions
 
-1. Install Go 1.16
+1. Install Go 1.17
 2. Install PostgreSQL 13.1
 3. `./scripts/setup_dev_dbs` to create development database
 4. Run `cp .env.example .env`
-4. Update .env for login (needs google creds + session keys)
-5. Run `go run main.go`
+5. Update .env for login (needs google creds + session keys)
+6. If you want emails to work, you can create an (app password)[https://myaccount.google.com/apppasswords] and use that in the .env.
+7. Run `go run main.go`
 
 ## Generate Session Keys
 
@@ -32,12 +33,12 @@ conversations using E2E encryption with keys stored by the consuming clients.
 - [x] Add environment + embed in necessary structs
 - [x] Add logging and update email failure (create note + create comment)
 - [x] Add guide for running the app for dev
+- [x] Render flash with alpinejs
+- [ ] Fix wonky spacing in comments (either newlines aren't captured or not being rendered)
 - [ ] Add MVP of meetings
 - [ ] Paginate lists (notes & meetings)
 - [ ] Update header to context based breadcrumb
 - [ ] Implement application encryption for note content (E2E)
-- [ ] Fix flash once trails adds update
-- [ ] Render flash with alpinejs
 - [ ] Add draft feature for notes
 - [ ] Add edit ability to group
 - [ ] Add testing
