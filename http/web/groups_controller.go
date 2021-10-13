@@ -70,6 +70,7 @@ func (c *Controller) getGroup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: return paginated notes, include parsing query params so that URLs work
+	// TODO: render partial only, x-init -> load notes, include pagination with @click handling
 
 	notes := []*domain.Note{}
 	if err := c.DB.Where("group_id = ?", group.ID).Preload("Author").Order("created_at DESC").Find(&notes).Error; err != nil {
