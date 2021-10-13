@@ -10,7 +10,7 @@ conversations using E2E encryption with keys stored by the consuming clients.
 3. `./scripts/setup_dev_dbs` to create development database
 4. Run `cp .env.example .env`
 5. Update .env for login (needs google creds + session keys)
-6. If you want emails to work, you can create an (app password)[https://myaccount.google.com/apppasswords] and use that in the .env.
+6. If you want emails to work, you can create an [app password](https://myaccount.google.com/apppasswords) and use that in the .env.
 7. Run `go run main.go`
 
 ## Generate Session Keys
