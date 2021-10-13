@@ -27,7 +27,7 @@ func (c *Controller) createNote(w http.ResponseWriter, r *http.Request) {
 
 	group := &domain.Group{}
 	groupID := mux.Vars(r)[routes.MuxIDParam]
-	rt := fmt.Sprintf("/groups/%s/notes", groupID)
+	rt := fmt.Sprintf("/groups/%s", groupID)
 
 	if err := c.DB.Preload("Users").First(group, groupID).Error; err != nil {
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
@@ -87,7 +87,7 @@ func (c *Controller) getNote(w http.ResponseWriter, r *http.Request) {
 
 	noteID := mux.Vars(r)[routes.MuxIDParam]
 	groupID := mux.Vars(r)[routes.MuxGroupParam]
-	rt := fmt.Sprintf("/groups/%s/notes", groupID)
+	rt := fmt.Sprintf("/groups/%s", groupID)
 
 	note := &domain.Note{}
 	if err := c.DB.Preload("Comments.Author").Preload("Author").First(note, noteID).Error; err != nil {

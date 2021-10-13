@@ -61,6 +61,7 @@ func (c *Controller) Router(env, baseURL string) router.Router {
 		{Path: routes.CreateCommentURL, Method: http.MethodPost, Handler: c.createComment},
 		{Path: routes.CreateGroupURL, Method: http.MethodPost, Handler: c.createGroup},
 		{Path: routes.CreateNoteURL, Method: http.MethodPost, Handler: c.createNote},
+		{Path: routes.GetGroupURL, Method: http.MethodGet, Handler: c.getGroup},
 		{Path: routes.GetGroupsURL, Method: http.MethodGet, Handler: c.getGroups},
 		{Path: routes.GetLogoffURL, Method: http.MethodGet, Handler: c.getLogoff},
 		{Path: routes.GetNoteURL, Method: http.MethodGet, Handler: c.getNote},

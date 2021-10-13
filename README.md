@@ -5,7 +5,7 @@ conversations using E2E encryption with keys stored by the consuming clients.
 
 ## Development instructions
 
-1. Install Go 1.16
+1. Install Go 1.17
 2. Install PostgreSQL 13.1
 3. `./scripts/setup_dev_dbs` to create development database
 4. Run `cp .env.example .env`

@@ -30,7 +30,7 @@
     <ul role="list" class="divide-y divide-gray-200">
       {{ range $idx, $group := .Data.groups }}
       <li>
-        <a href="/groups/{{ $group.ID }}/notes" class="block hover:bg-gray-50" title="View group's notes">
+        <a href="/groups/{{ $group.ID }}" class="block hover:bg-gray-50" title="View group">
           <div class="px-4 py-4 flex items-center sm:px-6">
             <div class="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between">
               <div class="truncate">
