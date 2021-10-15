@@ -34,12 +34,13 @@ conversations using E2E encryption with keys stored by the consuming clients.
 - [x] Add logging and update email failure (create note + create comment)
 - [x] Add guide for running the app for dev
 - [x] Render flash with alpinejs
+- [x] Paginate lists (notes)
 - [ ] Fix wonky spacing in comments (either newlines aren't captured or not being rendered)
 - [ ] Add MVP of meetings
-- [ ] Paginate lists (notes & meetings)
 - [ ] Update header to context based breadcrumb
 - [ ] Implement application encryption for note content (E2E)
 - [ ] Add draft feature for notes
 - [ ] Add edit ability to group
 - [ ] Add testing
 - [ ] Add better sigterm handling
+- [ ] Improve rendering of partials (remove need for wrapper) and move to trails
