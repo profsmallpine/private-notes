@@ -8,7 +8,7 @@
             Notes
           </h3>
           <p class="mt-1 text-sm leading-5 text-gray-500">
-            {{ if eq (len .Data.notes) 0 }}
+            {{ if eq (len .Data.notes.Items) 0 }}
             It looks like you have not created any notes yet. Let's start here.
             {{ else }}
             Here is an archive of all notes created for this group.
@@ -26,18 +26,11 @@
       </div>
     </div>
 
-    {{ if gt (len .Data.notes) 0 }}
-    {{ template "list" .Data.notes}}
+    {{ if gt (len .Data.notes.Items) 0 }}
+    <div id="notes-table">
+      {{ template "list" . }}
+    </div> 
     {{ end }}
-  </div>
-
-  <div x-init="" x-data="{ table: '' }">
-    <button @click="
-        fetch('/groups/{{ .Data.groupID }}/notes').then(
-            response => response.text()
-        ).then(data => table = data)
-    ">more</button>
-    <div x-html="table" x-show="!!table" x-transition></div>
   </div>
 </div>
 {{ end }}

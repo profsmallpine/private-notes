@@ -22,6 +22,8 @@ func (c *Controller) Router(env, baseURL string) router.Router {
 		files,
 		template.WithFn(template.Env(env)),
 		template.WithFn(template.RootUrl(u)),
+		template.WithFn("add1", func(value int) int { return value + 1 }),
+		template.WithFn("minus1", func(value int) int { return value - 1 }),
 		// template.WithFn(template.Nonce()),
 		// template.WithFn("packTag", template.TagPacker(h.Env.String(), os.DirFS("."))),
 		// template.WithFn("isDevelopment", func() bool { return h.Env == domain.Development }),

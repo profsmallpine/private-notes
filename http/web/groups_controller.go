@@ -69,18 +69,20 @@ func (c *Controller) getGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: return paginated notes, include parsing query params so that URLs work
-	// TODO: render partial only, x-init -> load notes, include pagination with @click handling
+	query := "group_id = ?"
+	params := []interface{}{group.ID}
+	order := "created_at DESC"
 
 	notes := []*domain.Note{}
-	if err := c.DB.Where("group_id = ?", group.ID).Preload("Author").Order("created_at DESC").Find(&notes).Error; err != nil {
+	pd, err := c.Database.PagedByQuery(&notes, query, params, order, 1, domain.PerPageSize, "Author")
+	if err != nil {
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
 
 	data := map[string]interface{}{
 		"groupID": group.ID,
-		"notes":   notes,
+		"notes":   pd,
 	}
 	c.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/groups/show.tmpl", "tmpl/partials/_header.tmpl", "tmpl/notes/_list.tmpl"))
 }
