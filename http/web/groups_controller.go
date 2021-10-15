@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/profsmallpine/private-notes/domain"
 	"github.com/profsmallpine/private-notes/http/routes"
 	"github.com/xy-planning-network/trails/http/resp"
@@ -44,8 +45,46 @@ func (c *Controller) createGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rt := fmt.Sprintf("%s/%d/notes", routes.GetGroupsURL, group.ID)
+	rt := fmt.Sprintf("%s/%d", routes.GetGroupsURL, group.ID)
 	c.Redirect(w, r, resp.Success("You've successfully created a new group, woo hoo!"), resp.Url(rt))
+}
+
+func (c *Controller) getGroup(w http.ResponseWriter, r *http.Request) {
+	// Authorize user can access the requested group
+	user, err := c.currentUser(r.Context())
+	if err != nil {
+		c.Redirect(w, r, resp.Url(routes.GetLogoffURL))
+		return
+	}
+
+	group := &domain.Group{}
+	if err := c.DB.First(group, mux.Vars(r)[routes.MuxIDParam]).Error; err != nil {
+		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
+		return
+	}
+
+	if !user.CanAccessGroup(group.ID) {
+		err := domain.ErrUnauthorized
+		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
+		return
+	}
+
+	query := "group_id = ?"
+	params := []interface{}{group.ID}
+	order := "created_at DESC"
+
+	notes := []*domain.Note{}
+	pd, err := c.Database.PagedByQuery(&notes, query, params, order, 1, domain.PerPageSize, "Author")
+	if err != nil {
+		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
+		return
+	}
+
+	data := map[string]interface{}{
+		"groupID": group.ID,
+		"notes":   pd,
+	}
+	c.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/groups/show.tmpl", "tmpl/partials/_header.tmpl", "tmpl/notes/_list.tmpl"))
 }
 
 func (c *Controller) getGroups(w http.ResponseWriter, r *http.Request) {

@@ -78,7 +78,12 @@ func New(logging *log.Logger) (*App, error) {
 
 	procedures := procedures.New(allowedEmails, db, services)
 
-	controller := web.Controller{DB: db, Procedures: procedures, Services: services}
+	controller := web.Controller{
+		Database:   postgres.NewService(db),
+		DB:         db,
+		Procedures: procedures,
+		Services:   services,
+	}
 
 	r := controller.Router(env, baseURL)
 

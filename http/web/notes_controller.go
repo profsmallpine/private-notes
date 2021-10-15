@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/profsmallpine/private-notes/domain"
@@ -27,7 +28,7 @@ func (c *Controller) createNote(w http.ResponseWriter, r *http.Request) {
 
 	group := &domain.Group{}
 	groupID := mux.Vars(r)[routes.MuxIDParam]
-	rt := fmt.Sprintf("/groups/%s/notes", groupID)
+	rt := fmt.Sprintf("/groups/%s", groupID)
 
 	if err := c.DB.Preload("Users").First(group, groupID).Error; err != nil {
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
@@ -87,7 +88,7 @@ func (c *Controller) getNote(w http.ResponseWriter, r *http.Request) {
 
 	noteID := mux.Vars(r)[routes.MuxIDParam]
 	groupID := mux.Vars(r)[routes.MuxGroupParam]
-	rt := fmt.Sprintf("/groups/%s/notes", groupID)
+	rt := fmt.Sprintf("/groups/%s", groupID)
 
 	note := &domain.Note{}
 	if err := c.DB.Preload("Comments.Author").Preload("Author").First(note, noteID).Error; err != nil {
@@ -126,17 +127,28 @@ func (c *Controller) getNotes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	pageStr := r.URL.Query().Get("page")
+	page, _ := strconv.Atoi(pageStr)
+	if page == 0 {
+		page = 1
+	}
+
+	query := "group_id = ?"
+	params := []interface{}{group.ID}
+	order := "created_at DESC"
+
 	notes := []*domain.Note{}
-	if err := c.DB.Where("group_id = ?", group.ID).Preload("Author").Order("created_at DESC").Find(&notes).Error; err != nil {
+	pd, err := c.Database.PagedByQuery(&notes, query, params, order, page, domain.PerPageSize, "Author")
+	if err != nil {
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
 
 	data := map[string]interface{}{
 		"groupID": group.ID,
-		"notes":   notes,
+		"notes":   pd,
 	}
-	c.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/notes/index.tmpl", "tmpl/partials/_header.tmpl"))
+	c.Html(w, r, resp.Data(data), resp.Tmpls("tmpl/notes/_list.wrapper.tmpl", "tmpl/notes/_list.tmpl"))
 }
 
 func (c *Controller) newNote(w http.ResponseWriter, r *http.Request) {

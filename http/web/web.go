@@ -10,6 +10,7 @@ import (
 	m "github.com/xy-planning-network/trails/http/middleware"
 	"github.com/xy-planning-network/trails/http/resp"
 	"github.com/xy-planning-network/trails/http/session"
+	"github.com/xy-planning-network/trails/postgres"
 	"gorm.io/gorm"
 )
 
@@ -27,7 +28,9 @@ var (
 )
 
 type Controller struct {
-	Keyring ctx.KeyRingable
+	Database postgres.DatabaseService
+	Keyring  ctx.KeyRingable
+
 	*gorm.DB
 	domain.Procedures
 	domain.Services
