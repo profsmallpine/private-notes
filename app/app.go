@@ -49,7 +49,7 @@ func New(logging *log.Logger) (*App, error) {
 		return nil, err
 	}
 
-	fsOpt := session.WithRedis(envVarOrString("REDIS_URL", "localhost:6379"), "")
+	fsOpt := session.WithRedis(envVarOrString("REDIS_URI", "localhost:6379"), envVarOrString("REDIS_PASSWORD", ""))
 	sss, err := session.NewStoreService(env, os.Getenv("SESSION_AUTH_KEY"), os.Getenv("SESSION_ENCRYPTION_KEY"), fsOpt)
 	if err != nil {
 		return nil, err
