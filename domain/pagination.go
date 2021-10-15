@@ -1,3 +1,3 @@
 package domain
 
-const PerPageSize = 1
+const PerPageSize = 5
