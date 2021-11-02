@@ -1,0 +1,88 @@
+{{ define "pageContent" }}
+<div class="relative py-16 overflow-hidden">
+  <div class="relative px-4 sm:px-6 lg:px-8">
+    <div class="text-lg max-w-prose mx-auto mb-6">
+      <p class="text-base text-center leading-6 text-indigo-600 font-semibold tracking-wide uppercase">{{ .Data.group.Name }} Meeting On</p>
+      <h1 class="mt-2 mb-8 text-3xl text-center leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl sm:leading-10">
+        {{ .Data.meeting.CreatedAtHumanized }}
+      </h1>
+      {{/* <div class="trix-content">
+        {{ .Data.note.HTMLContent }}
+      </div> */}}
+
+      <div class="mt-16">
+        {{ range .Data.meeting.Goals }}
+        <div class="flex flex-col mb-4 rounded-lg border overflow-hidden">
+          <div class="flex-1 p-4 flex flex-col justify-between">
+            <div class="flex-1">
+              <p class="text-sm leading-6 text-gray-500">
+                {{ .Content }}
+              </p>
+            </div>
+            <div class="mt-2 flex items-center">
+              <div class="flex-shrink-0">
+                {{/* {{ if ne .User.PictureURL "" }}
+                <img class="h-10 w-10 rounded-full" src="{{ .User.PictureURL }}" alt="">
+                {{ else }}
+                <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-500">
+                  <span class="text-sm font-medium leading-none text-white">{{ .User.Initials }}</span>
+                </span>
+                {{ end }} */}}
+                <span class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
+                    <!-- Heroicon name: solid/check -->
+                    {{/* <svg class="h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg> */}}
+
+                    <!-- Heroicon name: solid/clipboard -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                      <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                    </svg>
+                  </span>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm leading-5 font-medium text-gray-900">
+                  {{ .User.FullName }}
+                </p>
+                <div class="flex text-sm leading-5 text-gray-500">
+                  Goal set with {{ .Mood }} intentions
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {{ end }}
+
+        <form action="/groups/{{ .Data.meeting.GroupID }}/meetings/{{ .Data.meeting.ID }}/goals/create" method="POST">
+          <div class="space-y-6">
+            <div class="space-y-1">
+              <div class="rounded-md shadow-sm">
+                <textarea id="content" name="content" rows="3" class="shadow-sm block w-full focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md" placeholder="Add a goal!" required></textarea>
+              </div>
+
+              <select id="mood" name="mood" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                <option value="" disabled selected>Select a mood</option>
+                {{ range .Data.moods }}
+                <option value="{{ . }}">{{ . }}</option>
+                {{ end }}
+              </select>
+            </div>
+
+            <div class="flex justify-end">
+              <span class="ml-3 inline-flex rounded-md shadow-sm">
+                <button type="submit" class="relative inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:shadow-outline-indigo focus:border-indigo-700 active:bg-indigo-700">
+                  Submit
+                </button>
+              </span>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{{ end }}
+
+{{ define "scripts" }}
+{{ end }}

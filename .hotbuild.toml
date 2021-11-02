@@ -1,0 +1,4 @@
+buildcmd = "go build -o ./tmp_bin"
+excludedir = [".git"]
+projectdir = "/Users/professorpine/Documents/private-notes"
+runcmd = "./tmp_bin"

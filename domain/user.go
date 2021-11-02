@@ -12,6 +12,7 @@ type User struct {
 
 	Email      string `json:"email"`
 	FirstName  string `json:"firstName"`
+	IsAdmin    bool   `json:"isAdmin"`
 	LastName   string `json:"lastName"`
 	PictureURL string `json:"pictureURL"`
 
@@ -19,6 +20,7 @@ type User struct {
 }
 
 type UserProcedures interface {
+	CanAccessGroup(user *User, groupID string) (*Group, error)
 	HandleCallback(data *AuthData) (*User, error)
 }
 

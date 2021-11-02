@@ -61,12 +61,15 @@ func (c *Controller) Router(env, baseURL string) router.Router {
 	// Register authenticated routes
 	authenticatedRoutes := []router.Route{
 		{Path: routes.CreateCommentURL, Method: http.MethodPost, Handler: c.createComment},
+		{Path: routes.CreateGoalURL, Method: http.MethodPost, Handler: c.createGoal},
 		{Path: routes.CreateGroupURL, Method: http.MethodPost, Handler: c.createGroup},
+		{Path: routes.CreateMeetingURL, Method: http.MethodGet, Handler: c.createMeeting}, // Kind of hacky, but no data is passed to this endpoint yet
 		{Path: routes.CreateNoteURL, Method: http.MethodPost, Handler: c.createNote},
 		{Path: routes.GetGroupURL, Method: http.MethodGet, Handler: c.getGroup},
 		{Path: routes.GetGroupsURL, Method: http.MethodGet, Handler: c.getGroups},
 		{Path: routes.GetLogoffURL, Method: http.MethodGet, Handler: c.getLogoff},
 		{Path: routes.GetNoteURL, Method: http.MethodGet, Handler: c.getNote},
+		{Path: routes.GetMeetingURL, Method: http.MethodGet, Handler: c.getMeeting},
 		{Path: routes.GetNotesURL, Method: http.MethodGet, Handler: c.getNotes},
 		{Path: routes.GetRootURL, Method: http.MethodGet, Handler: c.getRoot},
 		{Path: routes.NewGroupURL, Method: http.MethodGet, Handler: c.newGroup},

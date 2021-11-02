@@ -13,6 +13,7 @@
 
 # Application binary
 private-notes
+tmp_bin
 
 # ENV
 .env

@@ -73,18 +73,32 @@ func (c *Controller) getGroup(w http.ResponseWriter, r *http.Request) {
 	params := []interface{}{group.ID}
 	order := "created_at DESC"
 
+	meetings := []*domain.Meeting{}
+	meetingsPD, err := c.Database.PagedByQuery(&meetings, query, params, order, 1, domain.PerPageSize)
+	if err != nil {
+		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
+		return
+	}
+
 	notes := []*domain.Note{}
-	pd, err := c.Database.PagedByQuery(&notes, query, params, order, 1, domain.PerPageSize, "Author")
+	notesPD, err := c.Database.PagedByQuery(&notes, query, params, order, 1, domain.PerPageSize, "Author")
 	if err != nil {
 		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
 
 	data := map[string]interface{}{
-		"groupID": group.ID,
-		"notes":   pd,
+		"currentUser": user,
+		"groupID":     group.ID,
+		"meetings":    meetingsPD,
+		"notes":       notesPD,
 	}
-	c.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/groups/show.tmpl", "tmpl/partials/_header.tmpl", "tmpl/notes/_list.tmpl"))
+	c.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls(
+		"tmpl/groups/show.tmpl",
+		"tmpl/partials/_header.tmpl",
+		"tmpl/notes/_list.tmpl",
+		"tmpl/meetings/_list.tmpl",
+	))
 }
 
 func (c *Controller) getGroups(w http.ResponseWriter, r *http.Request) {

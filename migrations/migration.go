@@ -8,4 +8,7 @@ var List = []postgres.Migration{
 	{Executor: CreateUsersTable, Key: "20201109_create_users"},
 	{Executor: CreateNotesTable, Key: "20201110_create_notes"},
 	{Executor: CreateCommentsTable, Key: "20201113_create_comments"},
+	{Executor: AddIsAdminToUsers, Key: "20211022_add_is_admin_to_users"},
+	{Executor: CreateMeetingsTable, Key: "20211022_create_meetings"},
+	{Executor: CreateGoalsTable, Key: "20211022_create_goals"},
 }

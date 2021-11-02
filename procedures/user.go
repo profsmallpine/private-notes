@@ -12,6 +12,20 @@ type User struct {
 	allowedEmails []string
 }
 
+func (u *User) CanAccessGroup(user *domain.User, groupID string) (*domain.Group, error) {
+	group := &domain.Group{}
+
+	if err := database.Preload("Users").First(group, groupID).Error; err != nil {
+		return nil, err
+	}
+
+	if !user.CanAccessGroup(group.ID) {
+		return nil, domain.ErrUnauthorized
+	}
+
+	return group, nil
+}
+
 func (u *User) FetchWithGroups(id uint, user *domain.User) error {
 	return database.Where("id = ?", id).Preload("Groups").First(user).Error
 }
