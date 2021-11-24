@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -26,6 +27,8 @@ type App struct {
 
 func New(logging *log.Logger) (*App, error) {
 	_ = godotenv.Load()
+
+	fmt.Println("loading the application, do i show up?")
 
 	allowedEmails := strings.Split(os.Getenv("ALLOWED_EMAILS"), ",")
 	baseURL := envVarOrString("BASE_URL", "http://localhost:8080")
@@ -85,6 +88,9 @@ func New(logging *log.Logger) (*App, error) {
 	}
 
 	r := controller.Router(env, baseURL)
+
+	fmt.Println("about to run on port: ")
+	fmt.Println(port)
 
 	server := newServer(port, r)
 
