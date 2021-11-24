@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -28,8 +27,6 @@ type App struct {
 func New(logging *log.Logger) (*App, error) {
 	_ = godotenv.Load()
 
-	fmt.Println("loading the application, do i show up?")
-
 	allowedEmails := strings.Split(os.Getenv("ALLOWED_EMAILS"), ",")
 	baseURL := envVarOrString("BASE_URL", "http://localhost:8080")
 	env := os.Getenv("ENVIRONMENT")
@@ -37,8 +34,6 @@ func New(logging *log.Logger) (*App, error) {
 	if port[0] != ':' {
 		port = ":" + port
 	}
-
-	fmt.Println("about to connect to DB")
 
 	// Connect/migrate database.
 	config := &postgres.CxnConfig{IsTestDB: false, URL: os.Getenv("DATABASE_URL")}
@@ -54,9 +49,16 @@ func New(logging *log.Logger) (*App, error) {
 		return nil, err
 	}
 
-	fmt.Println("about to connect to redis for sessions")
+	redisURL := os.Getenv("REDIS_URL")
+	redisPassword := ""
+	redisURI := "localhost:6379"
+	if redisURL != "" {
+		parts := strings.Split(redisURL, "@")
+		redisPassword = strings.Split(parts[0], ":")[2]
+		redisURI = parts[1]
+	}
 
-	fsOpt := session.WithRedis(envVarOrString("REDIS_URI", "localhost:6379"), envVarOrString("REDIS_PASSWORD", ""))
+	fsOpt := session.WithRedis(redisURI, redisPassword)
 	sss, err := session.NewStoreService(env, os.Getenv("SESSION_AUTH_KEY"), os.Getenv("SESSION_ENCRYPTION_KEY"), fsOpt)
 	if err != nil {
 		return nil, err
@@ -75,16 +77,12 @@ func New(logging *log.Logger) (*App, error) {
 		logger.WithLevel(logger.LogLevelInfo),
 	)
 
-	fmt.Println("about to init services")
-
 	services := domain.Services{
 		Auth:         auth.NewService(baseURL),
 		Email:        es,
 		Logger:       ls,
 		SessionStore: sss,
 	}
-
-	fmt.Println("about to init procs")
 
 	procedures := procedures.New(allowedEmails, db, services)
 
@@ -95,12 +93,7 @@ func New(logging *log.Logger) (*App, error) {
 		Services:   services,
 	}
 
-	fmt.Println("about to init router")
-
 	r := controller.Router(env, baseURL)
-
-	fmt.Println("about to run on port: ")
-	fmt.Println(port)
 
 	server := newServer(port, r)
 
