@@ -35,8 +35,10 @@ conversations using E2E encryption with keys stored by the consuming clients.
 - [x] Add guide for running the app for dev
 - [x] Render flash with alpinejs
 - [x] Paginate lists (notes)
+- [x] Add MVP of meetings
+- [ ] Paginate meetings
 - [ ] Fix wonky spacing in comments (either newlines aren't captured or not being rendered)
-- [ ] Add MVP of meetings
+- [ ] Add MVP of meeting review
 - [ ] Update header to context based breadcrumb
 - [ ] Implement application encryption for note content (E2E)
 - [ ] Add draft feature for notes

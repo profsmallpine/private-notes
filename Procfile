@@ -1,1 +1,1 @@
-web: private-notes
+web: bin/private-notes
