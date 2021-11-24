@@ -38,6 +38,8 @@ func New(logging *log.Logger) (*App, error) {
 		port = ":" + port
 	}
 
+	fmt.Println("about to connect to DB")
+
 	// Connect/migrate database.
 	config := &postgres.CxnConfig{IsTestDB: false, URL: os.Getenv("DATABASE_URL")}
 	if config.URL == "" {
@@ -51,6 +53,8 @@ func New(logging *log.Logger) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("about to connect to redis for sessions")
 
 	fsOpt := session.WithRedis(envVarOrString("REDIS_URI", "localhost:6379"), envVarOrString("REDIS_PASSWORD", ""))
 	sss, err := session.NewStoreService(env, os.Getenv("SESSION_AUTH_KEY"), os.Getenv("SESSION_ENCRYPTION_KEY"), fsOpt)
@@ -71,12 +75,16 @@ func New(logging *log.Logger) (*App, error) {
 		logger.WithLevel(logger.LogLevelInfo),
 	)
 
+	fmt.Println("about to init services")
+
 	services := domain.Services{
 		Auth:         auth.NewService(baseURL),
 		Email:        es,
 		Logger:       ls,
 		SessionStore: sss,
 	}
+
+	fmt.Println("about to init procs")
 
 	procedures := procedures.New(allowedEmails, db, services)
 
@@ -86,6 +94,8 @@ func New(logging *log.Logger) (*App, error) {
 		Procedures: procedures,
 		Services:   services,
 	}
+
+	fmt.Println("about to init router")
 
 	r := controller.Router(env, baseURL)
 
