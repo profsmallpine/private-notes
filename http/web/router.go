@@ -12,6 +12,7 @@ func (h *Controller) Router() {
 		{Path: routes.AuthCallbackURL, Method: http.MethodGet, Handler: h.oauthCallback},
 		{Path: routes.AuthLoginURL, Method: http.MethodGet, Handler: h.oauthLogin},
 		{Path: routes.GetLoginURL, Method: http.MethodGet, Handler: h.getLogin},
+		{Path: routes.GetRootURL, Method: http.MethodGet, Handler: h.getRoot},
 	}
 	h.UnauthedRoutes(h.EmitKeyring().CurrentUserKey(), unauthenticatedRoutes)
 
@@ -28,7 +29,7 @@ func (h *Controller) Router() {
 		{Path: routes.GetNoteURL, Method: http.MethodGet, Handler: h.getNote},
 		{Path: routes.GetMeetingURL, Method: http.MethodGet, Handler: h.getMeeting},
 		{Path: routes.GetNotesURL, Method: http.MethodGet, Handler: h.getNotes},
-		{Path: routes.GetRootURL, Method: http.MethodGet, Handler: h.getRoot},
+		// {Path: routes.GetRootURL, Method: http.MethodGet, Handler: h.getRoot},
 		{Path: routes.NewGroupURL, Method: http.MethodGet, Handler: h.newGroup},
 		{Path: routes.NewNoteURL, Method: http.MethodGet, Handler: h.newNote},
 	}

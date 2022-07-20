@@ -3,8 +3,10 @@ package app
 import (
 	"embed"
 	"log"
+	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/profsmallpine/private-notes/domain"
@@ -24,10 +26,10 @@ func New(logging *log.Logger, files embed.FS) (*ranger.Ranger, error) {
 
 	allowedEmails := strings.Split(os.Getenv("ALLOWED_EMAILS"), ",")
 	baseURL := envVarOrString("BASE_URL", "http://localhost:8080")
-	// port := envVarOrString("PORT", ":8080")
-	// if port[0] != ':' {
-	// 	port = ":" + port
-	// }
+	port := envVarOrString("PORT", ":8080")
+	if port[0] != ':' {
+		port = ":" + port
+	}
 
 	// Connect/migrate database.
 	config := &postgres.CxnConfig{IsTestDB: false, URL: os.Getenv("DATABASE_URL")}
@@ -68,6 +70,14 @@ func New(logging *log.Logger, files embed.FS) (*ranger.Ranger, error) {
 	}
 	fsOpt := session.WithRedis(redisURI, redisPassword)
 
+	// Configure http server
+	srv := &http.Server{
+		Addr:         port,
+		ReadTimeout:  5 * time.Second,
+		IdleTimeout:  120 * time.Second,
+		WriteTimeout: 5 * time.Second,
+	}
+
 	// Configure ranger
 	rng, err := ranger.New(
 		ranger.DefaultSessionStore(fsOpt),
@@ -77,6 +87,7 @@ func New(logging *log.Logger, files embed.FS) (*ranger.Ranger, error) {
 			template.WithFn("minus1", func(value int) int { return value - 1 }),
 		),
 		ranger.WithDB(postgres.NewService(db)),
+		ranger.WithServer(srv),
 		ranger.WithUserSessions(procedures.User),
 	)
 	if err != nil {
