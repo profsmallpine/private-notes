@@ -16,11 +16,11 @@ type createCommentReq struct {
 	Content string `schema:"content,required"`
 }
 
-func (c *Controller) createComment(w http.ResponseWriter, r *http.Request) {
+func (h *Controller) createComment(w http.ResponseWriter, r *http.Request) {
 	// Authorize user to create comment in the requested group
-	user, err := c.currentUser(r.Context())
+	user, err := h.currentUser(r.Context())
 	if err != nil {
-		c.Redirect(w, r, resp.Url(routes.GetLogoffURL))
+		h.Redirect(w, r, resp.Url(routes.GetLogoffURL))
 		return
 	}
 
@@ -29,27 +29,27 @@ func (c *Controller) createComment(w http.ResponseWriter, r *http.Request) {
 	rt := fmt.Sprintf("/groups/%s/notes/%s", groupID, noteID)
 
 	note := &domain.Note{}
-	if err := c.DB.First(note, noteID).Error; err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
+	if err := h.DB.First(note, noteID).Error; err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
 
 	group := &domain.Group{}
-	if err := c.DB.Preload("Users").First(group, groupID).Error; err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
+	if err := h.DB.Preload("Users").First(group, groupID).Error; err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
 
 	if !user.CanAccessGroup(note.GroupID) {
 		err := domain.ErrUnauthorized
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
 
 	// Parse + decode form into go
 	var req createCommentReq
-	if err := c.parseForm(r, &req); err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
+	if err := h.parseForm(r, &req); err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
 
@@ -59,8 +59,8 @@ func (c *Controller) createComment(w http.ResponseWriter, r *http.Request) {
 		NoteID:  note.ID,
 		UserID:  user.ID,
 	}
-	if err := c.DB.Create(comment).Error; err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
+	if err := h.DB.Create(comment).Error; err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
 
@@ -75,10 +75,10 @@ func (c *Controller) createComment(w http.ResponseWriter, r *http.Request) {
 		// TODO: log failure
 		msg := fmt.Sprintf("%s commented on a note. Check it out here: %s", user.FirstName, os.Getenv("BASE_URL")+rt)
 		subject := "Time to Reflect! Comment Made on Note"
-		if err := c.Services.Email.Send(msg, subject, members); err != nil {
-			c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
+		if err := h.Services.Email.Send(msg, subject, members); err != nil {
+			h.Ranger.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
 		}
 	}
 
-	c.Redirect(w, r, resp.Success("Your comment has been successfully created!"), resp.Url(rt))
+	h.Redirect(w, r, resp.Success("Your comment has been successfully created!"), resp.Url(rt))
 }

@@ -16,17 +16,17 @@ type createGroupReq struct {
 	UserIDs     []uint `schema:"userIDs,required"`
 }
 
-func (c *Controller) createGroup(w http.ResponseWriter, r *http.Request) {
+func (h *Controller) createGroup(w http.ResponseWriter, r *http.Request) {
 	// Parse + decode form into go
 	var req createGroupReq
-	if err := c.parseForm(r, &req); err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.GetGroupsURL))
+	if err := h.parseForm(r, &req); err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.GetGroupsURL))
 		return
 	}
 
-	user, err := c.currentUser(r.Context())
+	user, err := h.currentUser(r.Context())
 	if err != nil {
-		c.Redirect(w, r, resp.Url(routes.GetLogoffURL))
+		h.Redirect(w, r, resp.Url(routes.GetLogoffURL))
 		return
 	}
 
@@ -40,32 +40,32 @@ func (c *Controller) createGroup(w http.ResponseWriter, r *http.Request) {
 		Name:        req.Name,
 		Users:       users,
 	}
-	if err := c.DB.Create(group).Error; err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.GetGroupsURL))
+	if err := h.DB.Create(group).Error; err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.GetGroupsURL))
 		return
 	}
 
 	rt := fmt.Sprintf("%s/%d", routes.GetGroupsURL, group.ID)
-	c.Redirect(w, r, resp.Success("You've successfully created a new group, woo hoo!"), resp.Url(rt))
+	h.Redirect(w, r, resp.Success("You've successfully created a new group, woo hoo!"), resp.Url(rt))
 }
 
-func (c *Controller) getGroup(w http.ResponseWriter, r *http.Request) {
+func (h *Controller) getGroup(w http.ResponseWriter, r *http.Request) {
 	// Authorize user can access the requested group
-	user, err := c.currentUser(r.Context())
+	user, err := h.currentUser(r.Context())
 	if err != nil {
-		c.Redirect(w, r, resp.Url(routes.GetLogoffURL))
+		h.Redirect(w, r, resp.Url(routes.GetLogoffURL))
 		return
 	}
 
 	group := &domain.Group{}
-	if err := c.DB.First(group, mux.Vars(r)[routes.MuxIDParam]).Error; err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
+	if err := h.DB.First(group, mux.Vars(r)[routes.MuxIDParam]).Error; err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
 
 	if !user.CanAccessGroup(group.ID) {
 		err := domain.ErrUnauthorized
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
 
@@ -74,16 +74,16 @@ func (c *Controller) getGroup(w http.ResponseWriter, r *http.Request) {
 	order := "created_at DESC"
 
 	meetings := []*domain.Meeting{}
-	meetingsPD, err := c.Database.PagedByQuery(&meetings, query, params, order, 1, domain.PerPageSize)
+	meetingsPD, err := h.EmitDB().PagedByQuery(&meetings, query, params, order, 1, domain.PerPageSize)
 	if err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
 
 	notes := []*domain.Note{}
-	notesPD, err := c.Database.PagedByQuery(&notes, query, params, order, 1, domain.PerPageSize, "Author")
+	notesPD, err := h.EmitDB().PagedByQuery(&notes, query, params, order, 1, domain.PerPageSize, "Author")
 	if err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
 
@@ -93,7 +93,7 @@ func (c *Controller) getGroup(w http.ResponseWriter, r *http.Request) {
 		"meetings":    meetingsPD,
 		"notes":       notesPD,
 	}
-	c.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls(
+	h.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls(
 		"tmpl/groups/show.tmpl",
 		"tmpl/partials/_header.tmpl",
 		"tmpl/notes/_list.tmpl",
@@ -101,36 +101,37 @@ func (c *Controller) getGroup(w http.ResponseWriter, r *http.Request) {
 	))
 }
 
-func (c *Controller) getGroups(w http.ResponseWriter, r *http.Request) {
-	user, err := c.currentUser(r.Context())
+func (h *Controller) getGroups(w http.ResponseWriter, r *http.Request) {
+	user, err := h.currentUser(r.Context())
 	if err != nil {
-		c.Redirect(w, r, resp.Url(routes.GetLogoffURL))
+		fmt.Println(err.Error())
+		h.Redirect(w, r, resp.Url(routes.GetLogoffURL))
 		return
 	}
 
 	groups := []*domain.Group{}
-	if err := c.DB.Model(user).Preload("Users").Association("Groups").Find(&groups); err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.GetLogoffURL))
+	if err := h.DB.Model(user).Preload("Users").Association("Groups").Find(&groups); err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.GetLogoffURL))
 		return
 	}
 
 	data := map[string]interface{}{"groups": groups}
-	c.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/groups/index.tmpl", "tmpl/partials/_header.tmpl"))
+	h.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/groups/index.tmpl", "tmpl/partials/_header.tmpl"))
 }
 
-func (c *Controller) newGroup(w http.ResponseWriter, r *http.Request) {
-	user, err := c.currentUser(r.Context())
+func (h *Controller) newGroup(w http.ResponseWriter, r *http.Request) {
+	user, err := h.currentUser(r.Context())
 	if err != nil {
-		c.Redirect(w, r, resp.Url(routes.GetLogoffURL))
+		h.Redirect(w, r, resp.Url(routes.GetLogoffURL))
 		return
 	}
 
 	users := []*domain.User{}
-	if err := c.DB.Where("id != ?", user.ID).Find(&users).Error; err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.GetGroupsURL))
+	if err := h.DB.Where("id != ?", user.ID).Find(&users).Error; err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.GetGroupsURL))
 		return
 	}
 
 	data := map[string]interface{}{"users": users}
-	c.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/groups/new.tmpl", "tmpl/partials/_header.tmpl"))
+	h.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/groups/new.tmpl", "tmpl/partials/_header.tmpl"))
 }

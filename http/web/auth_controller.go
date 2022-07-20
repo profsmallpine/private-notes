@@ -8,44 +8,44 @@ import (
 	"github.com/xy-planning-network/trails/http/resp"
 )
 
-func (c *Controller) oauthLogin(w http.ResponseWriter, r *http.Request) {
+func (h *Controller) oauthLogin(w http.ResponseWriter, r *http.Request) {
 	provider := mux.Vars(r)["id"]
 
 	callbackURL := "/auth/" + provider + "/callback"
-	rt, err := c.Auth.FetchAuthURL(provider, callbackURL, w)
+	rt, err := h.Auth.FetchAuthURL(provider, callbackURL, w)
 	if err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Code(http.StatusSeeOther), resp.Url(routes.GetLoginURL))
+		h.Redirect(w, r, resp.GenericErr(err), resp.Code(http.StatusSeeOther), resp.Url(routes.GetLoginURL))
 		return
 	}
-	c.Redirect(w, r, resp.Url(rt), resp.Code(http.StatusTemporaryRedirect))
+	h.Redirect(w, r, resp.Url(rt), resp.Code(http.StatusTemporaryRedirect))
 }
 
-func (c *Controller) oauthCallback(w http.ResponseWriter, r *http.Request) {
+func (h *Controller) oauthCallback(w http.ResponseWriter, r *http.Request) {
 	provider := mux.Vars(r)["id"]
 
 	callbackURL := "/auth/" + provider + "/callback"
-	data, err := c.Auth.ExchangeCode(provider, callbackURL, r)
+	data, err := h.Auth.ExchangeCode(provider, callbackURL, r)
 	if err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Code(http.StatusSeeOther), resp.Url(routes.GetLoginURL))
+		h.Redirect(w, r, resp.GenericErr(err), resp.Code(http.StatusSeeOther), resp.Url(routes.GetLoginURL))
 		return
 	}
 
-	user, err := c.User.HandleCallback(data)
+	user, err := h.User.HandleCallback(data)
 	if err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Code(http.StatusSeeOther), resp.Url(routes.GetLoginURL))
+		h.Redirect(w, r, resp.GenericErr(err), resp.Code(http.StatusSeeOther), resp.Url(routes.GetLoginURL))
 		return
 	}
 
-	s, err := c.session(r.Context())
+	s, err := h.session(r.Context())
 	if err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Code(http.StatusSeeOther), resp.Url(routes.GetLoginURL))
+		h.Redirect(w, r, resp.GenericErr(err), resp.Code(http.StatusSeeOther), resp.Url(routes.GetLoginURL))
 		return
 	}
 
 	if err := s.RegisterUser(w, r, user.ID); err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Code(http.StatusSeeOther), resp.Url(routes.GetLoginURL))
+		h.Redirect(w, r, resp.GenericErr(err), resp.Code(http.StatusSeeOther), resp.Url(routes.GetLoginURL))
 		return
 	}
 
-	c.Redirect(w, r, resp.Success("Welcome, nice to see you here!"), resp.Url(user.HomePath()))
+	h.Redirect(w, r, resp.Success("Welcome, nice to see you here!"), resp.Url(user.HomePath()))
 }

@@ -1,11 +1,10 @@
 package app
 
 import (
+	"embed"
 	"log"
-	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/profsmallpine/private-notes/domain"
@@ -14,26 +13,21 @@ import (
 	"github.com/profsmallpine/private-notes/procedures"
 	"github.com/profsmallpine/private-notes/services/auth"
 	"github.com/profsmallpine/private-notes/services/email"
-	"github.com/xy-planning-network/trails/http/router"
 	"github.com/xy-planning-network/trails/http/session"
-	"github.com/xy-planning-network/trails/logger"
+	"github.com/xy-planning-network/trails/http/template"
 	"github.com/xy-planning-network/trails/postgres"
+	"github.com/xy-planning-network/trails/ranger"
 )
 
-type App struct {
-	*http.Server
-}
-
-func New(logging *log.Logger) (*App, error) {
+func New(logging *log.Logger, files embed.FS) (*ranger.Ranger, error) {
 	_ = godotenv.Load()
 
 	allowedEmails := strings.Split(os.Getenv("ALLOWED_EMAILS"), ",")
 	baseURL := envVarOrString("BASE_URL", "http://localhost:8080")
-	env := os.Getenv("ENVIRONMENT")
-	port := envVarOrString("PORT", ":8080")
-	if port[0] != ':' {
-		port = ":" + port
-	}
+	// port := envVarOrString("PORT", ":8080")
+	// if port[0] != ':' {
+	// 	port = ":" + port
+	// }
 
 	// Connect/migrate database.
 	config := &postgres.CxnConfig{IsTestDB: false, URL: os.Getenv("DATABASE_URL")}
@@ -49,6 +43,21 @@ func New(logging *log.Logger) (*App, error) {
 		return nil, err
 	}
 
+	es := email.NewService(
+		os.Getenv("EMAIL_FROM"),
+		os.Getenv("EMAIL_HOST"),
+		os.Getenv("EMAIL_PASSWORD"),
+		os.Getenv("EMAIL_PORT"),
+	)
+
+	services := domain.Services{
+		Auth:  auth.NewService(baseURL),
+		Email: es,
+	}
+
+	procedures := procedures.New(allowedEmails, db, services)
+
+	// Configure redis for sessions
 	redisURL := os.Getenv("REDIS_URL")
 	redisPassword := ""
 	redisURI := "localhost:6379"
@@ -57,59 +66,35 @@ func New(logging *log.Logger) (*App, error) {
 		redisPassword = strings.Split(parts[0], ":")[2]
 		redisURI = parts[1]
 	}
-
 	fsOpt := session.WithRedis(redisURI, redisPassword)
-	sss, err := session.NewStoreService(env, os.Getenv("SESSION_AUTH_KEY"), os.Getenv("SESSION_ENCRYPTION_KEY"), fsOpt)
+
+	// Configure ranger
+	rng, err := ranger.New(
+		ranger.DefaultSessionStore(fsOpt),
+		ranger.DefaultParser(
+			files,
+			template.WithFn("add1", func(value int) int { return value + 1 }),
+			template.WithFn("minus1", func(value int) int { return value - 1 }),
+		),
+		ranger.WithDB(postgres.NewService(db)),
+		ranger.WithUserSessions(procedures.User),
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	es := email.NewService(
-		os.Getenv("EMAIL_FROM"),
-		os.Getenv("EMAIL_HOST"),
-		os.Getenv("EMAIL_PASSWORD"),
-		os.Getenv("EMAIL_PORT"),
-	)
+	services.Logger = rng.Logger
 
-	ls := logger.NewLogger(
-		logger.WithEnv(env),
-		logger.WithLogger(logging),
-		logger.WithLevel(logger.LogLevelInfo),
-	)
-
-	services := domain.Services{
-		Auth:         auth.NewService(baseURL),
-		Email:        es,
-		Logger:       ls,
-		SessionStore: sss,
-	}
-
-	procedures := procedures.New(allowedEmails, db, services)
-
-	controller := web.Controller{
-		Database:   postgres.NewService(db),
+	h := &web.Controller{
 		DB:         db,
 		Procedures: procedures,
+		Ranger:     rng,
 		Services:   services,
 	}
 
-	r := controller.Router(env, baseURL)
+	h.Router()
 
-	server := newServer(port, r)
-
-	return &App{server}, nil
-}
-
-// TODO: nicely handle SIGTERM
-
-func newServer(port string, r router.Router) *http.Server {
-	return &http.Server{
-		Addr:         port,
-		Handler:      r,
-		ReadTimeout:  5 * time.Second,
-		IdleTimeout:  120 * time.Second,
-		WriteTimeout: 10 * time.Second,
-	}
+	return rng, nil
 }
 
 func envVarOrString(key string, def string) string {

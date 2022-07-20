@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/profsmallpine/private-notes/http/routes"
+	"github.com/xy-planning-network/trails/http/middleware"
 	"gorm.io/gorm"
 )
 
@@ -22,6 +23,7 @@ type User struct {
 type UserProcedures interface {
 	CanAccessGroup(user *User, groupID string) (*Group, error)
 	HandleCallback(data *AuthData) (*User, error)
+	GetByID(id uint) (middleware.User, error)
 }
 
 func (u *User) CanAccessGroup(groupID uint) bool {

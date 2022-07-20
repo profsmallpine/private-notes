@@ -1,20 +1,25 @@
 package main
 
 import (
+	"embed"
 	"log"
 	"os"
 
 	"github.com/profsmallpine/private-notes/app"
 )
 
+//go:embed tmpl/**/*.tmpl
+var files embed.FS
+
 func main() {
 	logger := log.New(os.Stdout, "", log.Lshortfile|log.LstdFlags)
-	privateNotes, err := app.New(logger)
+	privateNotes, err := app.New(logger, files)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	if err := privateNotes.ListenAndServe(); err != nil {
-		logger.Fatal("could not listen and serve: ", err)
+	// start the web server until receiving a signal to stop.
+	if err := privateNotes.Guide(); err != nil {
+		logger.Fatal("could not guide: ", err)
 	}
 }

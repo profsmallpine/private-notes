@@ -15,11 +15,11 @@ type createGoalReq struct {
 	Mood    string `schema:"mood,required"`
 }
 
-func (c *Controller) createGoal(w http.ResponseWriter, r *http.Request) {
+func (h *Controller) createGoal(w http.ResponseWriter, r *http.Request) {
 	// Authorize user to create goal in the requested meeting
-	user, err := c.currentUser(r.Context())
+	user, err := h.currentUser(r.Context())
 	if err != nil {
-		c.Redirect(w, r, resp.Url(routes.GetLogoffURL))
+		h.Redirect(w, r, resp.Url(routes.GetLogoffURL))
 		return
 	}
 
@@ -28,27 +28,27 @@ func (c *Controller) createGoal(w http.ResponseWriter, r *http.Request) {
 	rt := fmt.Sprintf("/groups/%s/meetings/%s", groupID, meetingID)
 
 	meeting := &domain.Meeting{}
-	if err := c.DB.First(meeting, meetingID).Error; err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
+	if err := h.DB.First(meeting, meetingID).Error; err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
 
 	group := &domain.Group{}
-	if err := c.DB.Preload("Users").First(group, groupID).Error; err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
+	if err := h.DB.Preload("Users").First(group, groupID).Error; err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
 
 	if !user.CanAccessGroup(meeting.GroupID) {
 		err := domain.ErrUnauthorized
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
 
 	// Parse + decode form into go
 	var req createGoalReq
-	if err := c.parseForm(r, &req); err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
+	if err := h.parseForm(r, &req); err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
 
@@ -59,10 +59,10 @@ func (c *Controller) createGoal(w http.ResponseWriter, r *http.Request) {
 		Mood:      req.Mood,
 		UserID:    user.ID,
 	}
-	if err := c.DB.Create(goal).Error; err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
+	if err := h.DB.Create(goal).Error; err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
 
-	c.Redirect(w, r, resp.Success("Your goal has been successfully created!"), resp.Url(rt))
+	h.Redirect(w, r, resp.Success("Your goal has been successfully created!"), resp.Url(rt))
 }

@@ -18,11 +18,11 @@ type createNoteReq struct {
 	Title   string `schema:"title,required"`
 }
 
-func (c *Controller) createNote(w http.ResponseWriter, r *http.Request) {
+func (h *Controller) createNote(w http.ResponseWriter, r *http.Request) {
 	// Authorize user to create note in the requested group
-	user, err := c.currentUser(r.Context())
+	user, err := h.currentUser(r.Context())
 	if err != nil {
-		c.Redirect(w, r, resp.Url(routes.GetLogoffURL))
+		h.Redirect(w, r, resp.Url(routes.GetLogoffURL))
 		return
 	}
 
@@ -30,21 +30,21 @@ func (c *Controller) createNote(w http.ResponseWriter, r *http.Request) {
 	groupID := mux.Vars(r)[routes.MuxIDParam]
 	rt := fmt.Sprintf("/groups/%s", groupID)
 
-	if err := c.DB.Preload("Users").First(group, groupID).Error; err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
+	if err := h.DB.Preload("Users").First(group, groupID).Error; err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
 
 	if !user.CanAccessGroup(group.ID) {
 		err := domain.ErrUnauthorized
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
 
 	// Parse + decode form into go
 	var req createNoteReq
-	if err := c.parseForm(r, &req); err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
+	if err := h.parseForm(r, &req); err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
 
@@ -55,8 +55,8 @@ func (c *Controller) createNote(w http.ResponseWriter, r *http.Request) {
 		Title:   req.Title,
 		UserID:  user.ID,
 	}
-	if err := c.DB.Create(note).Error; err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
+	if err := h.DB.Create(note).Error; err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
 
@@ -71,18 +71,18 @@ func (c *Controller) createNote(w http.ResponseWriter, r *http.Request) {
 	if len(members) > 0 {
 		msg := fmt.Sprintf("%s created a new post. Check it out here: %s", user.FirstName, os.Getenv("BASE_URL")+redirect)
 		subject := fmt.Sprintf("Get Excited! Newness Submitted to %s", group.Name)
-		if err := c.Services.Email.Send(msg, subject, members); err != nil {
-			c.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
+		if err := h.Services.Email.Send(msg, subject, members); err != nil {
+			h.Ranger.Logger.Error(err.Error(), &logger.LogContext{Request: r, User: user, Error: err})
 		}
 	}
 
-	c.Redirect(w, r, resp.Success("Your note has been successfully created!"), resp.Url(redirect))
+	h.Redirect(w, r, resp.Success("Your note has been successfully created!"), resp.Url(redirect))
 }
 
-func (c *Controller) getNote(w http.ResponseWriter, r *http.Request) {
-	user, err := c.currentUser(r.Context())
+func (h *Controller) getNote(w http.ResponseWriter, r *http.Request) {
+	user, err := h.currentUser(r.Context())
 	if err != nil {
-		c.Redirect(w, r, resp.Url(routes.GetLogoffURL))
+		h.Redirect(w, r, resp.Url(routes.GetLogoffURL))
 		return
 	}
 
@@ -91,39 +91,39 @@ func (c *Controller) getNote(w http.ResponseWriter, r *http.Request) {
 	rt := fmt.Sprintf("/groups/%s", groupID)
 
 	note := &domain.Note{}
-	if err := c.DB.Preload("Comments.Author").Preload("Author").First(note, noteID).Error; err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
+	if err := h.DB.Preload("Comments.Author").Preload("Author").First(note, noteID).Error; err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
 
 	// Authorize user can access the requested group
 	if !user.CanAccessGroup(note.GroupID) {
 		err := domain.ErrUnauthorized
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
 
 	data := map[string]interface{}{"note": note}
-	c.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/notes/show.tmpl", "tmpl/partials/_header.tmpl"))
+	h.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/notes/show.tmpl", "tmpl/partials/_header.tmpl"))
 }
 
-func (c *Controller) getNotes(w http.ResponseWriter, r *http.Request) {
+func (h *Controller) getNotes(w http.ResponseWriter, r *http.Request) {
 	// Authorize user can access the requested group
-	user, err := c.currentUser(r.Context())
+	user, err := h.currentUser(r.Context())
 	if err != nil {
-		c.Redirect(w, r, resp.Url(routes.GetLogoffURL))
+		h.Redirect(w, r, resp.Url(routes.GetLogoffURL))
 		return
 	}
 
 	group := &domain.Group{}
-	if err := c.DB.First(group, mux.Vars(r)[routes.MuxIDParam]).Error; err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
+	if err := h.DB.First(group, mux.Vars(r)[routes.MuxIDParam]).Error; err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
 
 	if !user.CanAccessGroup(group.ID) {
 		err := domain.ErrUnauthorized
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
 
@@ -138,9 +138,9 @@ func (c *Controller) getNotes(w http.ResponseWriter, r *http.Request) {
 	order := "created_at DESC"
 
 	notes := []*domain.Note{}
-	pd, err := c.Database.PagedByQuery(&notes, query, params, order, page, domain.PerPageSize, "Author")
+	pd, err := h.EmitDB().PagedByQuery(&notes, query, params, order, page, domain.PerPageSize, "Author")
 	if err != nil {
-		c.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
 
@@ -148,10 +148,10 @@ func (c *Controller) getNotes(w http.ResponseWriter, r *http.Request) {
 		"groupID": group.ID,
 		"notes":   pd,
 	}
-	c.Html(w, r, resp.Data(data), resp.Tmpls("tmpl/notes/_list.wrapper.tmpl", "tmpl/notes/_list.tmpl"))
+	h.Html(w, r, resp.Data(data), resp.Tmpls("tmpl/notes/_list.wrapper.tmpl", "tmpl/notes/_list.tmpl"))
 }
 
-func (c *Controller) newNote(w http.ResponseWriter, r *http.Request) {
+func (h *Controller) newNote(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{"groupID": mux.Vars(r)[routes.MuxIDParam]}
-	c.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/notes/new.tmpl", "tmpl/partials/_header.tmpl"))
+	h.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/notes/new.tmpl", "tmpl/partials/_header.tmpl"))
 }

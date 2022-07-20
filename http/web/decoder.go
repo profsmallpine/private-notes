@@ -11,7 +11,7 @@ import (
 // instance can be shared safely.
 var decoder = schema.NewDecoder()
 
-func (c *Controller) parseForm(r *http.Request, reqStructPtr interface{}) error {
+func (h *Controller) parseForm(r *http.Request, reqStructPtr interface{}) error {
 	if err := r.ParseForm(); err != nil {
 		fmt.Println(err)
 		return err
