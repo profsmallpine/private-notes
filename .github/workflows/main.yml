@@ -26,11 +26,10 @@ jobs:
           restore-keys: |
             go-
 
-      - name: Build go binaries
-        run: go build
-
       - name: Setup fly
         uses: superfly/flyctl-actions/setup-flyctl@master
       
       - name: Fly deploy
-        run: flyctl deploy --remote-only
+        run: |
+          go build
+          flyctl deploy --remote-only
