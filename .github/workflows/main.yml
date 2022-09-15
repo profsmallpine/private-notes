@@ -32,4 +32,5 @@ jobs:
       - name: Fly deploy
         run: |
           go build
+          ls -la
           flyctl deploy --remote-only
