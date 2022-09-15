@@ -29,6 +29,8 @@ jobs:
       - name: Build go binaries
         run: go build
 
-      - name: Deploy to fly
+      - name: Setup fly
         uses: superfly/flyctl-actions/setup-flyctl@master
+      
+      - name: Fly deploy
         run: flyctl deploy --remote-only
