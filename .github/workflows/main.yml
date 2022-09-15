@@ -31,5 +31,5 @@ jobs:
       
       - name: Fly deploy
         run: |
-          go build
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
           flyctl deploy
