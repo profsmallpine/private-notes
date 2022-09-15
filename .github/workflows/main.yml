@@ -7,6 +7,9 @@ env:
   FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 jobs:
   deploy:
+    name: Build + deploy app
+    runs-on: ubuntu-latest
+    steps:
       - name: Set up Go 1.18
         uses: actions/setup-go@v1
         with:
@@ -26,8 +29,6 @@ jobs:
       - name: Build go binaries
         run: go build
 
-      name: Deploy app
-      runs-on: ubuntu-latest
-      steps:
+      - name: Deploy to fly
         - uses: superfly/flyctl-actions/setup-flyctl@master
         - run: flyctl deploy --remote-only
