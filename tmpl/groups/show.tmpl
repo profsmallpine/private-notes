@@ -21,7 +21,7 @@
             <button 
               type="button" 
               class="relative inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:shadow-outline-indigo focus:border-indigo-700 active:bg-indigo-700" 
-              onclick="window.location.href='/groups/{{ .Data.groupID }}/meetings/create'"
+              onclick="Turbo.visit('/groups/{{ .Data.groupID }}/meetings/create')"
             >
               Have a meeting
             </button>
@@ -58,7 +58,7 @@
             <button 
               type="button" 
               class="relative inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:shadow-outline-indigo focus:border-indigo-700 active:bg-indigo-700" 
-              onclick="window.location.href='/groups/{{ .Data.groupID }}/notes/new'"
+              onclick="Turbo.visit('/groups/{{ .Data.groupID }}/notes/new')"
             >
               Create new note
             </button>

@@ -20,13 +20,13 @@ func (h *Controller) createGroup(w http.ResponseWriter, r *http.Request) {
 	// Parse + decode form into go
 	var req createGroupReq
 	if err := h.parseForm(r, &req); err != nil {
-		h.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.GetGroupsURL))
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.NewGroupURL), resp.Code(http.StatusBadRequest))
 		return
 	}
 
 	user, err := h.currentUser(r.Context())
 	if err != nil {
-		h.Redirect(w, r, resp.Url(routes.GetLogoffURL))
+		h.Redirect(w, r, resp.Url(routes.GetLogoffURL), resp.Code(http.StatusUnauthorized))
 		return
 	}
 
@@ -41,7 +41,7 @@ func (h *Controller) createGroup(w http.ResponseWriter, r *http.Request) {
 		Users:       users,
 	}
 	if err := h.DB.Create(group).Error; err != nil {
-		h.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.GetGroupsURL))
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(routes.NewGroupURL), resp.Code(http.StatusInternalServerError))
 		return
 	}
 
