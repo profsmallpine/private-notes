@@ -29,9 +29,11 @@ func (h *Controller) Router() {
 		{Path: routes.GetNoteURL, Method: http.MethodGet, Handler: h.getNote},
 		{Path: routes.GetMeetingURL, Method: http.MethodGet, Handler: h.getMeeting},
 		{Path: routes.GetNotesURL, Method: http.MethodGet, Handler: h.getNotes},
+		{Path: routes.GetWebsocketURL, Method: http.MethodGet, Handler: h.serveWS},
 		// {Path: routes.GetRootURL, Method: http.MethodGet, Handler: h.getRoot},
 		{Path: routes.NewGroupURL, Method: http.MethodGet, Handler: h.newGroup},
 		{Path: routes.NewNoteURL, Method: http.MethodGet, Handler: h.newNote},
+		{Path: routes.UpdateMeetingURL, Method: http.MethodGet, Handler: h.updateMeeting},
 	}
 	h.AuthedRoutes(h.EmitKeyring().CurrentUserKey(), routes.GetLoginURL, routes.GetLogoffURL, authenticatedRoutes)
 }

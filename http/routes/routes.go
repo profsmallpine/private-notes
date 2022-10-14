@@ -16,8 +16,10 @@ const (
 	GetNoteURL       = "/groups/{" + MuxGroupParam + ":[0-9]+}/notes/{" + MuxIDParam + ":[0-9]+}"
 	GetNotesURL      = "/groups/{" + MuxIDParam + ":[0-9]+}/notes"
 	GetRootURL       = "/"
+	GetWebsocketURL  = "/ws"
 	NewGroupURL      = "/groups/new"
 	NewNoteURL       = "/groups/{" + MuxIDParam + ":[0-9]+}/notes/new"
+	UpdateMeetingURL = GetMeetingURL + "/update"
 
 	// Router variable helper strings
 	MuxIDParam    = "id"

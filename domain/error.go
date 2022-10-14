@@ -3,6 +3,7 @@ package domain
 import "errors"
 
 var (
+	ErrBadRequest   = errors.New("bad request")
 	ErrNoSession    = errors.New("no session found")
 	ErrNotValid     = errors.New("invalid type")
 	ErrNoUser       = errors.New("no user found")

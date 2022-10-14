@@ -15,6 +15,7 @@ import (
 	"github.com/profsmallpine/private-notes/procedures"
 	"github.com/profsmallpine/private-notes/services/auth"
 	"github.com/profsmallpine/private-notes/services/email"
+	"github.com/profsmallpine/private-notes/services/websocket"
 	"github.com/xy-planning-network/trails/http/session"
 	"github.com/xy-planning-network/trails/http/template"
 	"github.com/xy-planning-network/trails/postgres"
@@ -53,8 +54,9 @@ func New(logging *log.Logger, files embed.FS) (*ranger.Ranger, error) {
 	)
 
 	services := domain.Services{
-		Auth:  auth.NewService(baseURL),
-		Email: es,
+		Auth:      auth.NewService(baseURL),
+		Email:     es,
+		Websocket: websocket.NewService(),
 	}
 
 	procedures := procedures.New(allowedEmails, db, services)
