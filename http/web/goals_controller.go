@@ -1,11 +1,8 @@
 package web
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
-	"strings"
-	"text/template"
 
 	"github.com/gorilla/mux"
 	"github.com/profsmallpine/private-notes/domain"
@@ -77,14 +74,6 @@ func (h *Controller) createGoal(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := h.DB.Create(goal).Error; err != nil {
 		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt), resp.Code(http.StatusInternalServerError))
-		return
-	}
-
-	if strings.Contains(r.Header.Get("Accept"), "text/vnd.turbo-stream.html") {
-		tmpl, _ := template.ParseFiles("tmpl/goals/goal.turbo.tmpl", "tmpl/goals/_goal.tmpl")
-		var buf bytes.Buffer
-		tmpl.Execute(&buf, goal)
-		h.Websocket.Broadcast(buf.Bytes())
 		return
 	}
 

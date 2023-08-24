@@ -17,7 +17,7 @@ func (h *Controller) oauthLogin(w http.ResponseWriter, r *http.Request) {
 		h.Redirect(w, r, resp.GenericErr(err), resp.Code(http.StatusSeeOther), resp.Url(routes.GetLoginURL))
 		return
 	}
-	h.Redirect(w, r, resp.Url(rt), resp.Code(http.StatusTemporaryRedirect))
+	w.Header().Add("HX-Redirect", rt)
 }
 
 func (h *Controller) oauthCallback(w http.ResponseWriter, r *http.Request) {

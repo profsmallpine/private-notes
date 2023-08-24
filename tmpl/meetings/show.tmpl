@@ -10,23 +10,32 @@
       <button 
         type="button" 
         class="rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 w-full text-center"
-        onclick="Turbo.visit('/groups/{{ .Data.meeting.GroupID }}/meetings/{{ .Data.meeting.ID }}/update')">Complete Meeting</button>
+        hx-get="/groups/{{ .Data.meeting.GroupID }}/meetings/{{ .Data.meeting.ID }}/update"
+        hx-target="body"
+        hx-push-url="true"
+      >
+        Complete Meeting
+      </button>
       {{ end }}
 
       <div class="mt-16">
-        <turbo-frame id="goals">
+        <div 
+          id="goals"
+          hx-get="/groups/{{ .Data.meeting.GroupID }}/meetings/{{ .Data.meeting.ID }}"
+          hx-trigger="every 10s"
+          hx-select="#goals"
+          hx-swap="outerHTML"
+        >
           {{ range .Data.meeting.Goals }}
           {{ template "goal" . }}
           {{ end }}
-        </turbo-frame>
+        </div>
 
         {{ if not .Data.meeting.IsComplete }}
-        <turbo-frame id="new-goal">
+        <div id="new-goal">
           <form 
             action="/groups/{{ .Data.meeting.GroupID }}/meetings/{{ .Data.meeting.ID }}/goals/create" 
             method="POST"
-            data-controller="reset-form"
-            data-action="turbo:submit-end->reset-form#reset"
           >
             <div class="space-y-6">
               <div class="space-y-1">
@@ -58,7 +67,7 @@
               </div>
             </div>
           </form>
-        </turbo-frame> 
+        </div> 
         {{ end }}
       </div>
     </div>
@@ -67,13 +76,4 @@
 {{ end }}
 
 {{ define "scripts" }}
-<script type="text/javascript">
-  Stimulus.Application.start().register("reset-form", class extends Stimulus.Controller {
-    reset() {
-      this.element.reset()
-    }
-  })
-
-  Turbo.connectStreamSource(new WebSocket(`${window.location.protocol === 'https:' ? 'wss' : 'ws'}:\/\/${window.location.host}\/ws`));
-</script>
 {{ end }}

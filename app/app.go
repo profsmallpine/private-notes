@@ -13,7 +13,6 @@ import (
 	"github.com/profsmallpine/private-notes/procedures"
 	"github.com/profsmallpine/private-notes/services/auth"
 	"github.com/profsmallpine/private-notes/services/email"
-	"github.com/profsmallpine/private-notes/services/websocket"
 	"github.com/xy-planning-network/trails"
 	"github.com/xy-planning-network/trails/postgres"
 	"github.com/xy-planning-network/trails/ranger"
@@ -47,13 +46,20 @@ func New(logging *log.Logger, files embed.FS) (*ranger.Ranger, error) {
 	)
 
 	services := domain.Services{
-		Auth:  auth.NewService(trails.EnvVarOrString("BASE_URL", "http://localhost:8080")),
+		Auth: auth.NewService(
+			trails.EnvVarOrString(
+				"BASE_URL",
+				"http://localhost:8080",
+			),
+		),
 		Email: es,
-		// SSE:       sse.NewService(),
-		Websocket: websocket.NewService(),
 	}
 
-	procedures := procedures.New(strings.Split(os.Getenv("ALLOWED_EMAILS"), ","), pdb.DB, services)
+	procedures := procedures.New(
+		strings.Split(os.Getenv("ALLOWED_EMAILS"), ","),
+		pdb.DB,
+		services,
+	)
 
 	services.Logger = rng.Logger
 
