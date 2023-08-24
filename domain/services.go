@@ -6,5 +6,6 @@ type Services struct {
 	Auth      AuthService
 	Email     EmailService
 	Logger    logger.Logger
+	SSE       SSEService
 	Websocket WebsocketService
 }

@@ -16,6 +16,7 @@ const (
 	GetNoteURL       = "/groups/{" + MuxGroupParam + ":[0-9]+}/notes/{" + MuxIDParam + ":[0-9]+}"
 	GetNotesURL      = "/groups/{" + MuxIDParam + ":[0-9]+}/notes"
 	GetRootURL       = "/"
+	GetSSEURL        = "/sse"
 	GetWebsocketURL  = "/ws"
 	NewGroupURL      = "/groups/new"
 	NewNoteURL       = "/groups/{" + MuxIDParam + ":[0-9]+}/notes/new"

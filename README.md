@@ -38,9 +38,13 @@ conversations using E2E encryption with keys stored by the consuming clients.
 - [x] Add MVP of meetings
 - [x] Fix wonky spacing in comments (either newlines aren't captured or not being rendered)
 - [x] Add better sigterm handling
-- [ ] Paginate meetings
 - [ ] Add MVP of meeting review
 - [ ] Update header to context based breadcrumb
+- [ ] Add support for meeting ID based websocket connection
+- [ ] Spike out code for HTMX based implementation
+- [ ] Spike out SSE implementation for meeting + goals
+- [ ] Remove HTMX dep for paging if hotwire works out mo better
+- [ ] Paginate meetings
 - [ ] Implement application encryption for note content (E2E)
 - [ ] Add draft feature for notes
 - [ ] Add edit ability to group

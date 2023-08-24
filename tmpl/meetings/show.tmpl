@@ -74,6 +74,6 @@
     }
   })
 
-  Turbo.connectStreamSource(new WebSocket(`ws:\/\/${window.location.host}\/ws`));
+  Turbo.connectStreamSource(new WebSocket(`${window.location.protocol === 'https:' ? 'wss' : 'ws'}:\/\/${window.location.host}\/ws`));
 </script>
 {{ end }}

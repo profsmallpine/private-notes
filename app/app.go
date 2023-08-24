@@ -54,8 +54,9 @@ func New(logging *log.Logger, files embed.FS) (*ranger.Ranger, error) {
 	)
 
 	services := domain.Services{
-		Auth:      auth.NewService(baseURL),
-		Email:     es,
+		Auth:  auth.NewService(baseURL),
+		Email: es,
+		// SSE:       sse.NewService(),
 		Websocket: websocket.NewService(),
 	}
 

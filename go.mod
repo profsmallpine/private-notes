@@ -8,11 +8,14 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/schema v1.2.0
 	github.com/joho/godotenv v1.4.0
+	github.com/r3labs/sse/v2 v2.10.0
 	github.com/xy-planning-network/trails v0.5.0
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
 	google.golang.org/api v0.81.0
 	gorm.io/gorm v1.23.8
 )
+
+require gopkg.in/cenkalti/backoff.v1 v1.1.0 // indirect
 
 require (
 	cloud.google.com/go/compute v1.6.1 // indirect
