@@ -61,7 +61,7 @@
     <a 
       href="#" 
       class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-      hx-get="/groups/{{ .Data.groupID }}/notes?page={{ minus1 .Data.notes.Page }}"
+      hx-get="/groups/{{ .Data.groupID }}/notes?page={{ len (slice (printf "%*s" .Data.notes.Page "") 1) }}"
       hx-trigger="click"
       hx-target="#notes-table"
       hx-swap="innerHTML"
@@ -73,7 +73,7 @@
     <a 
       href="#" 
       class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-      hx-get="/groups/{{ .Data.groupID }}/notes?page={{ add1 .Data.notes.Page }}"
+      hx-get="/groups/{{ .Data.groupID }}/notes?page={{ len (printf "a%*s" .Data.notes.Page "") }}"
       hx-trigger="click"
       hx-target="#notes-table"
       hx-swap="innerHTML"

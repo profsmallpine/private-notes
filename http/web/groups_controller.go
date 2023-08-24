@@ -74,14 +74,14 @@ func (h *Controller) getGroup(w http.ResponseWriter, r *http.Request) {
 	order := "created_at DESC"
 
 	meetings := []*domain.Meeting{}
-	meetingsPD, err := h.EmitDB().PagedByQuery(&meetings, query, params, order, 1, domain.PerPageSize)
+	meetingsPD, err := h.Ranger.DB().PagedByQuery(&meetings, query, params, order, 1, domain.PerPageSize)
 	if err != nil {
 		h.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
 
 	notes := []*domain.Note{}
-	notesPD, err := h.EmitDB().PagedByQuery(&notes, query, params, order, 1, domain.PerPageSize, "Author")
+	notesPD, err := h.Ranger.DB().PagedByQuery(&notes, query, params, order, 1, domain.PerPageSize, "Author")
 	if err != nil {
 		h.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return

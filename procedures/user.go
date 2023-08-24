@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/profsmallpine/private-notes/domain"
-	"github.com/xy-planning-network/trails/http/middleware"
 	"github.com/xy-planning-network/trails/logger"
 	"gorm.io/gorm"
 )
@@ -29,15 +28,6 @@ func (u *User) CanAccessGroup(user *domain.User, groupID string) (*domain.Group,
 
 func (u *User) FetchWithGroups(id uint, user *domain.User) error {
 	return database.Where("id = ?", id).Preload("Groups").First(user).Error
-}
-
-func (u *User) GetByID(id uint) (middleware.User, error) {
-	user := &domain.User{}
-	if err := database.Preload("Groups").First(user, id).Error; err != nil {
-		return nil, err
-	}
-
-	return middleware.User(user), nil
 }
 
 func (u *User) HandleCallback(data *domain.AuthData) (*domain.User, error) {

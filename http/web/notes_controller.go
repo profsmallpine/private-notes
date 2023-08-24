@@ -138,7 +138,7 @@ func (h *Controller) getNotes(w http.ResponseWriter, r *http.Request) {
 	order := "created_at DESC"
 
 	notes := []*domain.Note{}
-	pd, err := h.EmitDB().PagedByQuery(&notes, query, params, order, page, domain.PerPageSize, "Author")
+	pd, err := h.Ranger.DB().PagedByQuery(&notes, query, params, order, page, domain.PerPageSize, "Author")
 	if err != nil {
 		h.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return

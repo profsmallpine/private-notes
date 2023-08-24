@@ -14,7 +14,7 @@ func (h *Controller) Router() {
 		{Path: routes.GetLoginURL, Method: http.MethodGet, Handler: h.getLogin},
 		{Path: routes.GetRootURL, Method: http.MethodGet, Handler: h.getRoot},
 	}
-	h.UnauthedRoutes(h.EmitKeyring().CurrentUserKey(), unauthenticatedRoutes)
+	h.UnauthedRoutes(unauthenticatedRoutes)
 
 	// Register authenticated routes
 	authenticatedRoutes := []router.Route{
@@ -36,5 +36,5 @@ func (h *Controller) Router() {
 		{Path: routes.NewNoteURL, Method: http.MethodGet, Handler: h.newNote},
 		{Path: routes.UpdateMeetingURL, Method: http.MethodGet, Handler: h.updateMeeting},
 	}
-	h.AuthedRoutes(h.EmitKeyring().CurrentUserKey(), routes.GetLoginURL, routes.GetLogoffURL, authenticatedRoutes)
+	h.AuthedRoutes(routes.GetLoginURL, routes.GetLogoffURL, authenticatedRoutes)
 }
