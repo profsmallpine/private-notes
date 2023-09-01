@@ -1,7 +1,10 @@
 package procedures
 
 import (
+	"errors"
+
 	"github.com/profsmallpine/private-notes/domain"
+	"gorm.io/gorm"
 )
 
 type Meeting struct{}
@@ -50,5 +53,22 @@ func (m *Meeting) CopyGoals(meeting *domain.Meeting, user *domain.User, goalIDs 
 }
 
 func (u *Meeting) HasPendingReview(meeting *domain.Meeting, user *domain.User) (bool, error) {
-	return true, nil
+	// If previous meeting cannot be found, then there is no pending review
+	lastMeeting := &domain.Meeting{}
+	if err := database.Where("id < ?", meeting.ID).Order("id DESC").First(&lastMeeting).Error; err != nil {
+		return false, nil
+	}
+
+	// If user meeting review record is found, then there is no pending review
+	umr := &domain.UserMeetingReview{}
+	err := database.Where("user_id = ? AND meeting_id = ?", user.ID, meeting.ID).First(umr).Error
+	if err == nil {
+		return false, nil
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return true, nil
+	}
+
+	return false, err
 }

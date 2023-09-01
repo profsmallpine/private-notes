@@ -73,17 +73,17 @@ func (h *Controller) getMeeting(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// hasPendingReview, err := h.Procedures.Meeting.HasPendingReview(meeting, user)
-	// if err != nil {
-	// 	h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
-	// 	return
-	// }
+	hasPendingReview, err := h.Procedures.Meeting.HasPendingReview(meeting, user)
+	if err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
+		return
+	}
 
-	// if hasPendingReview {
-	// 	rt := fmt.Sprintf("/meetings/%s/review", meetingID)
-	// 	h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
-	// 	return
-	// }
+	if hasPendingReview {
+		rt := fmt.Sprintf("/meetings/%s/review", meetingID)
+		h.Redirect(w, r, resp.Url(rt))
+		return
+	}
 
 	data := map[string]any{
 		"currentUser": user,

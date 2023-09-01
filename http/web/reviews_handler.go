@@ -65,7 +65,7 @@ func (h *Controller) getMeetingReview(w http.ResponseWriter, r *http.Request) {
 	rt := fmt.Sprintf("/meetings/%s/review", meetingID)
 
 	meeting := &domain.Meeting{}
-	if err := h.DB.Debug().Preload("Goals.User").Where("id < ?", meetingID).Order("id DESC").First(meeting).Error; err != nil {
+	if err := h.DB.Preload("Goals.User").Where("id < ?", meetingID).Order("id DESC").First(meeting).Error; err != nil {
 		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
