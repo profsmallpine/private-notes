@@ -12,6 +12,8 @@ kill_timeout = "5s"
   auto_rollback = true
 
 [env]
+  APP_DESCRIPTION=Share your private notes with friends and connect authentically
+  APP_TITLE=Private notes
   BASE_URL = "https://privatenotes.group"
   EMAIL_HOST = "smtp.gmail.com"
   EMAIL_PORT = "587"
