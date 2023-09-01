@@ -103,7 +103,7 @@ func (h *Controller) getNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := map[string]interface{}{"note": note}
+	data := map[string]any{"note": note}
 	h.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/notes/show.tmpl", "tmpl/partials/_header.tmpl"))
 }
 
@@ -134,7 +134,7 @@ func (h *Controller) getNotes(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query := "group_id = ?"
-	params := []interface{}{group.ID}
+	params := []any{group.ID}
 	order := "created_at DESC"
 
 	notes := []*domain.Note{}
@@ -144,7 +144,7 @@ func (h *Controller) getNotes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"groupID": group.ID,
 		"notes":   pd,
 	}
@@ -152,6 +152,6 @@ func (h *Controller) getNotes(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Controller) newNote(w http.ResponseWriter, r *http.Request) {
-	data := map[string]interface{}{"groupID": mux.Vars(r)[routes.MuxIDParam]}
+	data := map[string]any{"groupID": mux.Vars(r)[routes.MuxIDParam]}
 	h.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/notes/new.tmpl", "tmpl/partials/_header.tmpl"))
 }

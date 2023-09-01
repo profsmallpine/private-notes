@@ -14,6 +14,18 @@ type Meeting struct {
 	Group *Group  `json:"group"`
 }
 
+type UserMeetingReview struct {
+	gorm.Model `json:"-"`
+
+	MeetingID uint `json:"meetingID"`
+	UserID    uint `json:"userID"`
+}
+
+type MeetingProcedures interface {
+	CopyGoals(*Meeting, *User, []uint) error
+	HasPendingReview(*Meeting, *User) (bool, error)
+}
+
 func (m *Meeting) CreatedAtHumanized() string {
 	return m.CreatedAt.Format("Jan 2, 2006")
 }

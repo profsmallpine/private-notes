@@ -15,6 +15,7 @@ func New(allowedEmails []string, db *gorm.DB, s domain.Services) domain.Procedur
 	services = s
 
 	return domain.Procedures{
-		User: &User{allowedEmails},
+		Meeting: &Meeting{},
+		User:    &User{allowedEmails},
 	}
 }

@@ -70,7 +70,7 @@ func (h *Controller) getGroup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query := "group_id = ?"
-	params := []interface{}{group.ID}
+	params := []any{group.ID}
 	order := "created_at DESC"
 
 	meetings := []*domain.Meeting{}
@@ -87,7 +87,7 @@ func (h *Controller) getGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"currentUser": user,
 		"groupID":     group.ID,
 		"meetings":    meetingsPD,
@@ -115,7 +115,7 @@ func (h *Controller) getGroups(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := map[string]interface{}{"groups": groups}
+	data := map[string]any{"groups": groups}
 	h.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/groups/index.tmpl", "tmpl/partials/_header.tmpl"))
 }
 
@@ -132,6 +132,6 @@ func (h *Controller) newGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := map[string]interface{}{"users": users}
+	data := map[string]any{"users": users}
 	h.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/groups/new.tmpl", "tmpl/partials/_header.tmpl"))
 }

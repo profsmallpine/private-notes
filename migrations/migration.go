@@ -12,4 +12,5 @@ var List = []postgres.Migration{
 	{Executor: CreateMeetingsTable, Key: "20211022_create_meetings"},
 	{Executor: CreateGoalsTable, Key: "20211022_create_goals"},
 	{Executor: AddStyleToGoals, Key: "20221007_add_style_to_goals"},
+	{Executor: CreateUserMeetingReviewsTable, Key: "20230901_add_user_meeting_reviews"},
 }

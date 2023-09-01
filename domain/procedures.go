@@ -1,5 +1,6 @@
 package domain
 
 type Procedures struct {
-	User UserProcedures
+	Meeting MeetingProcedures
+	User    UserProcedures
 }

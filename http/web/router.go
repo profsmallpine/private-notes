@@ -28,6 +28,8 @@ func (h *Controller) Router() {
 		{Path: routes.GetLogoffURL, Method: http.MethodGet, Handler: h.getLogoff},
 		{Path: routes.GetNoteURL, Method: http.MethodGet, Handler: h.getNote},
 		{Path: routes.GetMeetingURL, Method: http.MethodGet, Handler: h.getMeeting},
+		{Path: routes.GetMeetingReviewURL, Method: http.MethodPost, Handler: h.createMeetingReview},
+		{Path: routes.GetMeetingReviewURL, Method: http.MethodGet, Handler: h.getMeetingReview},
 		{Path: routes.GetNotesURL, Method: http.MethodGet, Handler: h.getNotes},
 		// {Path: routes.GetRootURL, Method: http.MethodGet, Handler: h.getRoot},
 		{Path: routes.NewGroupURL, Method: http.MethodGet, Handler: h.newGroup},
