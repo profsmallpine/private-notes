@@ -10,21 +10,12 @@ jobs:
     name: Build + deploy app
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go 1.18
-        uses: actions/setup-go@v1
-        with:
-          go-version: 1.18
-
       - name: Check out source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Cache go modules
-        uses: actions/cache@v1
+      - uses: actions/setup-go@v4
         with:
-          path: ~/go/pkg/mod
-          key: go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            go-
+          go-version-file: 'go.mod'
 
       - name: Setup fly
         uses: superfly/flyctl-actions/setup-flyctl@master
