@@ -5,7 +5,7 @@ conversations using E2E encryption with keys stored by the consuming clients.
 
 ## Development instructions
 
-1. Install Go 1.17
+1. Install Go 1.20
 2. Install PostgreSQL 13.1
 3. `./scripts/setup_dev_dbs` to create development database
 4. Run `cp .env.example .env`
@@ -41,12 +41,15 @@ conversations using E2E encryption with keys stored by the consuming clients.
 - [x] Spike out code for HTMX based implementation
 - [x] Spike out SSE implementation for meeting + goals
 - [x] Remove hotwire for HMTX dep
-- [ ] Add MVP of meeting review
+- [x] Add MVP of meeting review
 - [ ] Update header to context based breadcrumb
-- [ ] Add support for meeting ID based websocket connection
 - [ ] Paginate meetings
 - [ ] Implement application encryption for note content (E2E)
 - [ ] Add draft feature for notes
 - [ ] Add edit ability to group
 - [ ] Add testing
 - [ ] Improve rendering of partials (remove need for wrapper) and move to trails
+
+## Build for fly.io deploy
+
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
