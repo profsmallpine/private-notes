@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/profsmallpine/private-notes/domain"
+	"github.com/profsmallpine/private-notes/html"
 	"github.com/profsmallpine/private-notes/http/routes"
 	"github.com/xy-planning-network/trails/http/resp"
 )
@@ -78,24 +79,11 @@ func (h *Controller) getMeetingReview(w http.ResponseWriter, r *http.Request) {
 		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
+	meeting.Group = group
 
-	data := map[string]any{
-		"currentUser":     user,
-		"group":           group,
-		"meetingID":       meetingID,
-		"meetingToReview": meeting,
-		"moods":           domain.GoalMoods,
-		"styles":          domain.GoalStyles,
-	}
-	h.Html(
-		w,
-		r,
-		resp.Authed(),
-		resp.Data(data),
-		resp.Tmpls(
-			"tmpl/reviews/show.tmpl",
-			"tmpl/goals/_goal.tmpl",
-			"tmpl/partials/_header.tmpl",
-		),
-	)
+	html.AuthenticatedLayout(
+		h.flashes(w, r),
+		html.ShowReview(meetingID, meeting, user),
+		[]domain.Breadcrumb{{Label: group.Name, URL: fmt.Sprintf("/groups/%d", group.ID)}},
+	).Render(r.Context(), w)
 }

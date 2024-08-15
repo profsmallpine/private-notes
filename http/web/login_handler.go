@@ -3,12 +3,16 @@ package web
 import (
 	"net/http"
 
+	"github.com/profsmallpine/private-notes/html"
 	"github.com/profsmallpine/private-notes/http/routes"
 	"github.com/xy-planning-network/trails/http/resp"
 )
 
 func (h *Controller) getLogin(w http.ResponseWriter, r *http.Request) {
-	h.Html(w, r, resp.Unauthed(), resp.Tmpls("tmpl/login/index.tmpl"))
+	html.UnauthenticatedLayout(
+		h.flashes(w, r),
+		html.Login(),
+	).Render(r.Context(), w)
 }
 
 func (h *Controller) getLogoff(w http.ResponseWriter, r *http.Request) {

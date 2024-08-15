@@ -17,7 +17,7 @@ type Note struct {
 
 	Author   *User      `json:"author" gorm:"foreignKey:UserID"`
 	Comments []*Comment `json:"comments"`
-	// Group via group_id
+	Group    *Group     `json:"group"`
 }
 
 func (n *Note) CreatedAtHumanized() string {

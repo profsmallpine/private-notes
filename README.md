@@ -5,7 +5,7 @@ conversations using E2E encryption with keys stored by the consuming clients.
 
 ## Development instructions
 
-1. Install Go 1.20
+1. Install Go 1.22
 2. Install PostgreSQL 13.1
 3. `./scripts/setup_dev_dbs` to create development database
 4. Run `cp .env.example .env`
@@ -42,7 +42,8 @@ conversations using E2E encryption with keys stored by the consuming clients.
 - [x] Spike out SSE implementation for meeting + goals
 - [x] Remove hotwire for HMTX dep
 - [x] Add MVP of meeting review
-- [ ] Update header to context based breadcrumb
+- [x] Adds templ POC to /templ
+- [x] Update header to context based breadcrumb
 - [ ] Paginate meetings
 - [ ] Implement application encryption for note content (E2E)
 - [ ] Add draft feature for notes

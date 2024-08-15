@@ -1,0 +1,231 @@
+package html
+
+import (
+	"fmt"
+	"github.com/profsmallpine/private-notes/domain"
+	"github.com/xy-planning-network/trails/postgres"
+	"strconv"
+	"time"
+)
+
+templ ListGroups(groups []*domain.Group) {
+	<div class="max-w-none mx-auto">
+		<div class="bg-white overflow-hidden sm:rounded-lg sm:shadow">
+			<div class="bg-white px-4 py-5 border-b border-gray-200 sm:px-6">
+				<div class="-ml-4 -mt-4 flex justify-between items-center flex-wrap sm:flex-no-wrap">
+					<div class="ml-4 mt-4">
+						<h3 class="text-lg leading-6 font-medium text-gray-900">
+							Groups
+						</h3>
+						<p class="mt-1 text-sm leading-5 text-gray-500">
+							if len(groups) == 0 {
+								It looks like you have not created any groups yet. Let's start here.
+							} else {
+								Take some time to craft your thoughts for any of the groups you belong to.
+							}
+						</p>
+					</div>
+					<div class="ml-4 mt-4 flex-shrink-0">
+						<span class="inline-flex rounded-md shadow-sm">
+							<button
+								type="button"
+								class="relative inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:shadow-outline-indigo focus:border-indigo-700 active:bg-indigo-700"
+								hx-get="/groups/new"
+								hx-target="body"
+								hx-push-url="true"
+							>
+								Create new group
+							</button>
+						</span>
+					</div>
+				</div>
+			</div>
+			if len(groups) > 0 {
+				<ul role="list" class="divide-y divide-gray-200">
+					for _, group := range groups {
+						<li>
+							<a href={ templ.URL(fmt.Sprintf("/groups/%d", group.ID)) } class="block hover:bg-gray-50" title="View group">
+								<div class="px-4 py-4 flex items-center sm:px-6">
+									<div class="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between">
+										<div class="truncate">
+											<div class="flex text-sm">
+												<p class="font-medium text-indigo-600 truncate">{ group.Name }</p>
+												<p class="ml-1 flex-shrink-0 font-normal text-gray-500">
+													{ group.Description }
+												</p>
+											</div>
+											<div class="mt-2 flex">
+												<div class="flex items-center text-sm text-gray-500">
+													<!-- Heroicon name: solid/calendar -->
+													<svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+														<path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+													</svg>
+													<p>
+														Created on
+														<time datetime={ group.CreatedAt.Format(time.DateTime) }>{ group.CreatedAtHumanized() }</time>
+													</p>
+												</div>
+											</div>
+										</div>
+										<div class="mt-4 flex-shrink-0 sm:mt-0">
+											<div class="flex overflow-hidden">
+												for idx, user := range group.Users {
+													<img
+														class={ "inline-block h-6 w-6 rounded-full text-white shadow-solid", templ.KV("-ml-1", idx != 0) }
+														src={ user.PictureURL }
+														alt={ user.FullName() }
+													/>
+												}
+											</div>
+										</div>
+									</div>
+									<div class="ml-5 flex-shrink-0">
+										<!-- Heroicon name: chevron-right -->
+										<svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+											<path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+										</svg>
+									</div>
+								</div>
+							</a>
+						</li>
+					}
+				</ul>
+			}
+		</div>
+	</div>
+}
+
+templ NewGroup(users []*domain.User) {
+	<div>
+		<div class="md:grid md:grid-cols-3 md:gap-6">
+			<div class="md:col-span-1">
+				<div class="px-4 sm:px-0">
+					<h3 class="text-lg font-medium leading-6 text-gray-900">Create a new group</h3>
+					<p class="mt-1 text-sm text-gray-600">
+						Notes created will be shared with each member of the group.
+					</p>
+				</div>
+			</div>
+			<div class="mt-5 md:mt-0 md:col-span-2">
+				<form action="/groups/create" method="POST">
+					<div class="shadow sm:rounded-md sm:overflow-hidden">
+						<div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+							<div class="grid grid-cols-3 gap-6">
+								<div class="col-span-3">
+									<label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+									<input type="text" name="name" id="name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" required/>
+								</div>
+							</div>
+							<div>
+								<label for="description" class="block text-sm font-medium text-gray-700">
+									Description
+								</label>
+								<div class="mt-1">
+									<textarea id="description" name="description" rows="3" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md" placeholder="Let's discuss things" required></textarea>
+								</div>
+								<p class="mt-2 text-sm text-gray-500">
+									Set your intention for the group.
+								</p>
+							</div>
+							<div class="mt-6">
+								<label class="block text-sm leading-5 font-medium text-gray-700">
+									Users
+								</label>
+								<select id="userIDs" name="userIDs" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" multiple>
+									for _, user := range users {
+										<option value={ strconv.Itoa(int(user.ID)) }>{ user.FullName() }</option>
+									}
+								</select>
+							</div>
+						</div>
+						<div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+							<button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+								Save
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+}
+
+templ ShowGroup(cu *domain.User, group *domain.Group, meetingsPD, notesPD postgres.PagedData) {
+	<div class="max-w-none mx-auto">
+		<div class="bg-white mb-8 overflow-hidden sm:rounded-lg sm:shadow">
+			<div class="bg-white px-4 py-5 border-b border-gray-200 sm:px-6">
+				<div class="-ml-4 -mt-4 flex justify-between items-center flex-wrap sm:flex-no-wrap">
+					<div class="ml-4 mt-4">
+						<h3 class="text-lg leading-6 font-medium text-gray-900">
+							Meetings
+						</h3>
+						<p class="mt-1 text-sm leading-5 text-gray-500">
+							if meetingsPD.TotalItems == 0 {
+								It looks like you have not had any meetings yet. Get it scheduled, it's the best part.
+							} else {
+								Here is an archive of all meetings for this group.
+							}
+						</p>
+					</div>
+					if cu.IsAdmin {
+						<div class="ml-4 mt-4 flex-shrink-0">
+							<span class="inline-flex rounded-md shadow-sm">
+								<button
+									type="button"
+									class="relative inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:shadow-outline-indigo focus:border-indigo-700 active:bg-indigo-700"
+									hx-get={ string(templ.URL(fmt.Sprintf("/groups/%d/meetings/create", group.ID))) }
+									hx-target="body"
+									hx-push-url="true"
+								>
+									Have a meeting
+								</button>
+							</span>
+						</div>
+					}
+				</div>
+			</div>
+			if meetingsPD.TotalItems > 0 {
+				// TODO: use raw go to protect against panics
+				<div id="meetings-table">
+					@ListMeetings(*meetingsPD.Items.(*[]*domain.Meeting))
+				</div>
+			}
+		</div>
+		<div class="bg-white overflow-hidden sm:rounded-lg sm:shadow">
+			<div class="bg-white px-4 py-5 border-b border-gray-200 sm:px-6">
+				<div class="-ml-4 -mt-4 flex justify-between items-center flex-wrap sm:flex-no-wrap">
+					<div class="ml-4 mt-4">
+						<h3 class="text-lg leading-6 font-medium text-gray-900">
+							Notes
+						</h3>
+						<p class="mt-1 text-sm leading-5 text-gray-500">
+							if notesPD.TotalItems == 0 {
+								It looks like you have not created any notes yet. Let's start here.
+							} else {
+								Here is an archive of all notes created for this group.
+							}
+						</p>
+					</div>
+					<div class="ml-4 mt-4 flex-shrink-0">
+						<span class="inline-flex rounded-md shadow-sm">
+							<button
+								type="button"
+								class="relative inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:shadow-outline-indigo focus:border-indigo-700 active:bg-indigo-700"
+								hx-get={ string(templ.URL(fmt.Sprintf("/groups/%d/notes/new", group.ID))) }
+								hx-target="body"
+								hx-push-url="true"
+							>
+								Create new note
+							</button>
+						</span>
+					</div>
+				</div>
+			</div>
+			if notesPD.TotalItems > 0 {
+				<div id="notes-table">
+					@ListNotes(notesPD, group)
+				</div>
+			}
+		</div>
+	</div>
+}

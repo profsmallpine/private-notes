@@ -38,3 +38,6 @@ func (h *Controller) Router() {
 	}
 	h.AuthedRoutes(routes.GetLoginURL, routes.GetLogoffURL, authenticatedRoutes)
 }
+
+func (h *Controller) MuxRouter() {
+}

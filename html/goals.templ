@@ -1,0 +1,42 @@
+package html
+
+import (
+	"fmt"
+	"github.com/profsmallpine/private-notes/domain"
+)
+
+templ ShowGoal(goal *domain.Goal) {
+	<div id={ fmt.Sprintf("goal-%d", goal.ID) } class="flex flex-col mb-4 rounded-lg border overflow-hidden">
+		<div class="flex-1 p-4 flex flex-col justify-between">
+			<div class="flex-1">
+				<p class="text-base leading-6 text-gray-500">
+					<span
+						class={ "capitalize inline-flex items-center rounded px-2 py-0.5 text-xs font-medium", 
+                            fmt.Sprintf("bg-%s-100 text-%s-800", goal.Style.Color(), goal.Style.Color()) }
+					>{ goal.Style.String() }</span>
+					{ goal.Content }
+				</p>
+			</div>
+			<div class="mt-2 flex items-center">
+				<div class="flex-shrink-0">
+					<span class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
+						<!-- Heroicon name: solid/clipboard -->
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+							<path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"></path>
+							<path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"></path>
+						</svg>
+					</span>
+				</div>
+				<div class="ml-3">
+					<p class="text-sm leading-5 font-medium text-gray-900">
+						{ goal.User.FullName() }
+					</p>
+					<div class="flex text-sm leading-5 text-gray-500">
+						Goal set with { goal.Mood } intentions
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	// }
+}

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/profsmallpine/private-notes/domain"
+	"github.com/profsmallpine/private-notes/html"
 	"github.com/profsmallpine/private-notes/http/routes"
 	"github.com/xy-planning-network/trails/http/resp"
 )
@@ -57,8 +58,9 @@ func (h *Controller) getGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	groupID := mux.Vars(r)[routes.MuxIDParam]
 	group := &domain.Group{}
-	if err := h.DB.First(group, mux.Vars(r)[routes.MuxIDParam]).Error; err != nil {
+	if err := h.DB.First(group, groupID).Error; err != nil {
 		h.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
 		return
 	}
@@ -87,18 +89,11 @@ func (h *Controller) getGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := map[string]any{
-		"currentUser": user,
-		"groupID":     group.ID,
-		"meetings":    meetingsPD,
-		"notes":       notesPD,
-	}
-	h.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls(
-		"tmpl/groups/show.tmpl",
-		"tmpl/partials/_header.tmpl",
-		"tmpl/notes/_list.tmpl",
-		"tmpl/meetings/_list.tmpl",
-	))
+	html.AuthenticatedLayout(
+		h.flashes(w, r),
+		html.ShowGroup(user, group, meetingsPD, notesPD),
+		nil,
+	).Render(r.Context(), w)
 }
 
 func (h *Controller) getGroups(w http.ResponseWriter, r *http.Request) {
@@ -115,8 +110,11 @@ func (h *Controller) getGroups(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := map[string]any{"groups": groups}
-	h.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/groups/index.tmpl", "tmpl/partials/_header.tmpl"))
+	html.AuthenticatedLayout(
+		h.flashes(w, r),
+		html.ListGroups(groups),
+		nil,
+	).Render(r.Context(), w)
 }
 
 func (h *Controller) newGroup(w http.ResponseWriter, r *http.Request) {
@@ -132,6 +130,9 @@ func (h *Controller) newGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := map[string]any{"users": users}
-	h.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/groups/new.tmpl", "tmpl/partials/_header.tmpl"))
+	html.AuthenticatedLayout(
+		h.flashes(w, r),
+		html.NewGroup(users),
+		nil,
+	).Render(r.Context(), w)
 }

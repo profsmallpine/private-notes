@@ -8,7 +8,6 @@ import (
 	"github.com/profsmallpine/private-notes/app"
 )
 
-//go:embed tmpl/**/*.tmpl
 var files embed.FS
 
 func main() {

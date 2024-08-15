@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/profsmallpine/private-notes/domain"
+	"github.com/profsmallpine/private-notes/html"
 	"github.com/profsmallpine/private-notes/http/routes"
 	"github.com/xy-planning-network/trails/http/resp"
 	"github.com/xy-planning-network/trails/logger"
@@ -91,7 +92,7 @@ func (h *Controller) getNote(w http.ResponseWriter, r *http.Request) {
 	rt := fmt.Sprintf("/groups/%s", groupID)
 
 	note := &domain.Note{}
-	if err := h.DB.Preload("Comments.Author").Preload("Author").First(note, noteID).Error; err != nil {
+	if err := h.DB.Preload("Comments.Author").Preload("Author").Preload("Group").First(note, noteID).Error; err != nil {
 		h.Redirect(w, r, resp.GenericErr(err), resp.Url(rt))
 		return
 	}
@@ -103,8 +104,11 @@ func (h *Controller) getNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := map[string]any{"note": note}
-	h.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/notes/show.tmpl", "tmpl/partials/_header.tmpl"))
+	html.AuthenticatedLayout(
+		h.flashes(w, r),
+		html.ShowNote(note),
+		[]domain.Breadcrumb{{Label: note.Group.Name, URL: fmt.Sprintf("/groups/%d", note.Group.ID)}},
+	).Render(r.Context(), w)
 }
 
 func (h *Controller) getNotes(w http.ResponseWriter, r *http.Request) {
@@ -144,14 +148,25 @@ func (h *Controller) getNotes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := map[string]any{
-		"groupID": group.ID,
-		"notes":   pd,
-	}
-	h.Html(w, r, resp.Data(data), resp.Tmpls("tmpl/notes/_list.wrapper.tmpl", "tmpl/notes/_list.tmpl"))
+	html.ListNotes(pd, group).Render(r.Context(), w)
 }
 
 func (h *Controller) newNote(w http.ResponseWriter, r *http.Request) {
-	data := map[string]any{"groupID": mux.Vars(r)[routes.MuxIDParam]}
-	h.Html(w, r, resp.Authed(), resp.Data(data), resp.Tmpls("tmpl/notes/new.tmpl", "tmpl/partials/_header.tmpl"))
+	user, err := h.currentUser(r.Context())
+	if err != nil {
+		h.Redirect(w, r, resp.Url(routes.GetLogoffURL))
+		return
+	}
+
+	group := &domain.Group{}
+	if err := h.DB.First(group, mux.Vars(r)[routes.MuxIDParam]).Error; err != nil {
+		h.Redirect(w, r, resp.GenericErr(err), resp.Url(user.HomePath()))
+		return
+	}
+
+	html.AuthenticatedLayout(
+		h.flashes(w, r),
+		html.NewNote(group),
+		[]domain.Breadcrumb{{Label: group.Name, URL: fmt.Sprintf("/groups/%d", group.ID)}},
+	).Render(r.Context(), w)
 }
